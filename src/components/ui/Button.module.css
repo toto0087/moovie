@@ -1,0 +1,44 @@
+.btn {
+  width: 100%;
+  padding: 14px var(--space-lg);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.primary {
+  background: var(--color-button-primary);
+  color: white;
+  border: none;
+}
+
+.outline {
+  background: white;
+  color: var(--color-text);
+  border: 1px solid var(--color-text);
+}
+
+.social {
+  background: white;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  text-transform: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.socialApple {
+  border-color: var(--color-text);
+}

@@ -1,0 +1,43 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-search-bg);
+  border-radius: var(--radius-pill);
+  padding: 12px var(--space-lg);
+  margin: 0 var(--space-lg);
+}
+
+.iconLeft {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--color-text);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.micBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.micBtn svg {
+  width: 18px;
+  height: 18px;
+}

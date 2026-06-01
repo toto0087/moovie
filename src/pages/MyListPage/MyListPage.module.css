@@ -1,0 +1,34 @@
+.page {
+  min-height: 100%;
+}
+
+.searchWrap {
+  padding: var(--space-sm) 0 var(--space-xl);
+}
+
+.carousel {
+  display: flex;
+  gap: var(--space-md);
+  overflow-x: auto;
+  padding: 0 var(--space-lg) var(--space-2xl);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselCard {
+  flex: 0 0 75%;
+  max-width: 300px;
+  scroll-snap-align: center;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.carouselCard img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}

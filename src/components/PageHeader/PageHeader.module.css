@@ -1,0 +1,24 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md) var(--space-lg) var(--space-sm);
+  position: relative;
+  min-height: 56px;
+}
+
+.logoLink {
+  display: flex;
+  margin: 0 auto;
+}
+
+.logo {
+  margin: 0 auto;
+}
+
+.right {
+  position: absolute;
+  right: var(--space-lg);
+  top: 50%;
+  transform: translateY(-50%);
+}

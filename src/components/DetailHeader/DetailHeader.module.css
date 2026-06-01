@@ -1,0 +1,46 @@
+.header {
+  padding: var(--space-md) 0 0;
+}
+
+.logoRow {
+  display: flex;
+  justify-content: center;
+  padding-bottom: var(--space-md);
+}
+
+.navRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: 0 var(--space-lg) var(--space-md);
+}
+
+.backBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-top: -2px;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.genre {
+  font-size: 14px;
+  color: var(--color-text-body);
+  margin-top: 2px;
+}
