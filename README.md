@@ -9,7 +9,7 @@ Frontend en React del proyecto **Moovi**, basado en los mockups de diseño. Solo
 | `/home` | Catálogo en grilla 2 columnas |
 | `/buscar` | Home con barra de búsqueda |
 | `/novedades` | Home con tabs (Novedades, Recién agregadas, Populares) |
-| `/favoritos` | Lista de favoritos |
+| `/tendencia` | Contenido en tendencia (grilla) |
 | `/mi-lista` | Carrusel horizontal de tu lista |
 | `/perfil` | Perfil de usuario |
 | `/titulo/:id` | Detalle de título (ej. Stranger Things) |

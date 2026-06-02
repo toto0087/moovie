@@ -1,0 +1,36 @@
+.chart {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.bg {
+  fill: #ececee;
+}
+
+.line {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.markerHead {
+  stroke: none;
+}
+
+.up .line {
+  stroke: #52d869;
+}
+
+.up .markerHead {
+  fill: #52d869;
+}
+
+.down .line {
+  stroke: #ff4d4f;
+}
+
+.down .markerHead {
+  fill: #ff4d4f;
+}

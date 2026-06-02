@@ -1,5 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FiX, FiChevronDown } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../../components/Logo/Logo';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -7,10 +8,20 @@ import styles from './JoinUsPage.module.css';
 
 export function JoinUsPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, login } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
+  }
+
+  const handleSuccess = () => {
+    login();
+    navigate('/home');
+  };
 
   return (
     <div className={styles.page}>
-      <button type="button" className={styles.close} onClick={() => navigate('/sign-in')} aria-label="Cerrar">
+      <button type="button" className={styles.close} onClick={() => navigate('/')} aria-label="Cerrar">
         <FiX />
       </button>
 
@@ -21,7 +32,7 @@ export function JoinUsPage() {
         Create your Moovi Member profile and get first access to all catalog.
       </p>
 
-      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); navigate('/home'); }}>
+      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); handleSuccess(); }}>
         <Input type="email" placeholder="name@email.com" required />
         <Input type="password" placeholder="Password" required />
         <Input type="text" placeholder="First Name" required />

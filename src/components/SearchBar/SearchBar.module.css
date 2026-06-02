@@ -28,16 +28,27 @@
   color: var(--color-text-secondary);
 }
 
-.micBtn {
+.agentBtn {
   border: none;
   background: transparent;
   padding: 0;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   color: var(--color-text-secondary);
   cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s, color 0.15s;
 }
 
-.micBtn svg {
-  width: 18px;
-  height: 18px;
+.agentBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.agentBtnActive {
+  color: var(--color-bg);
+  background: var(--color-agent-btn-active);
 }

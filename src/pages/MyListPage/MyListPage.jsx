@@ -1,27 +1,30 @@
-import { Link } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { SearchBar } from '../../components/SearchBar/SearchBar';
-import { getMovieById } from '../../data/movies';
+import { MyListItem } from '../../components/MyListItem/MyListItem';
+import { useMyList } from '../../context/MyListContext';
 import styles from './MyListPage.module.css';
 
-const listIds = ['stranger-things', 'the-crown', 'demon-slayer'];
-
 export function MyListPage() {
-  const listMovies = listIds.map(getMovieById).filter(Boolean);
+  const { listMovies } = useMyList();
 
   return (
     <div className={styles.page}>
       <PageHeader />
       <div className={styles.searchWrap}>
-        <SearchBar />
+        <SearchBar placeholder="Buscar en tu lista" />
       </div>
-      <div className={styles.carousel}>
-        {listMovies.map((movie) => (
-          <Link key={movie.id} to={`/titulo/${movie.id}`} className={styles.carouselCard}>
-            <img src={movie.poster} alt={movie.title} />
-          </Link>
-        ))}
-      </div>
+
+      {listMovies.length === 0 ? (
+        <p className={styles.empty}>
+          Tu lista está vacía. Entrá a un título y tocá &quot;Mi Lista&quot; para guardarlo acá.
+        </p>
+      ) : (
+        <ul className={styles.list} aria-label="Mi lista">
+          {listMovies.map((movie) => (
+            <MyListItem key={movie.id} movie={movie} />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

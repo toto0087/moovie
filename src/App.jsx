@@ -1,5 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { MyListProvider } from './context/MyListContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
 import { AppLayout } from './components/Layout/AppLayout';
+import { LandingGate } from './pages/LandingPage/LandingGate';
 import { HomePage } from './pages/HomePage/HomePage';
 import { SearchPage } from './pages/SearchPage/SearchPage';
 import { FavoritesPage } from './pages/FavoritesPage/FavoritesPage';
@@ -11,21 +16,30 @@ import { JoinUsPage } from './pages/JoinUsPage/JoinUsPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/sign-in" element={<SignInPage />} />
-        <Route path="/join-us" element={<JoinUsPage />} />
-        <Route element={<AppLayout />}>
-          <Route path="/home" element={<HomePage variant="grid" />} />
-          <Route path="/buscar" element={<SearchPage />} />
-          <Route path="/novedades" element={<HomePage variant="tabs" />} />
-          <Route path="/favoritos" element={<FavoritesPage />} />
-          <Route path="/mi-lista" element={<MyListPage />} />
-          <Route path="/perfil" element={<ProfilePage />} />
-          <Route path="/titulo/:id" element={<TitleDetailPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <AuthProvider>
+        <MyListProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingGate />} />
+            <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/join-us" element={<JoinUsPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/buscar" element={<SearchPage />} />
+                <Route path="/novedades" element={<HomePage variant="tabs" />} />
+                <Route path="/favoritos" element={<Navigate to="/tendencia" replace />} />
+                <Route path="/tendencia" element={<FavoritesPage />} />
+                <Route path="/mi-lista" element={<MyListPage />} />
+                <Route path="/perfil" element={<ProfilePage />} />
+                <Route path="/titulo/:id" element={<TitleDetailPage />} />
+              </Route>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        </MyListProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

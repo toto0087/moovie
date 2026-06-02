@@ -65,3 +65,20 @@
   width: 12px;
   height: 6px;
 }
+
+.xl .eye {
+  width: 52px;
+  height: 52px;
+  border-width: 8px;
+}
+
+.xl .eye::after {
+  width: 12px;
+  height: 12px;
+}
+
+.xl .bridge {
+  width: 18px;
+  height: 8px;
+  margin: 0 -3px;
+}

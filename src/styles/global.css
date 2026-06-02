@@ -16,9 +16,10 @@ body,
 
 body {
   font-family: var(--font-family);
-  background: #f5f5f5;
+  background: var(--color-shell-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {

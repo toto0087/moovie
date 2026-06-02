@@ -1,6 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
 import { FaApple, FaFacebook, FaGoogle } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../../components/Logo/Logo';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -8,10 +9,20 @@ import styles from './SignInPage.module.css';
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, login } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
+  }
+
+  const handleSuccess = () => {
+    login();
+    navigate('/home');
+  };
 
   return (
     <div className={styles.page}>
-      <button type="button" className={styles.close} onClick={() => navigate('/home')} aria-label="Cerrar">
+      <button type="button" className={styles.close} onClick={() => navigate('/')} aria-label="Cerrar">
         <FiX />
       </button>
 
@@ -23,7 +34,7 @@ export function SignInPage() {
         EVERYTHING MOOVI
       </h1>
 
-      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); navigate('/home'); }}>
+      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); handleSuccess(); }}>
         <Input type="email" placeholder="Email" required />
         <Input type="password" placeholder="Password" required />
         <a href="#" className={styles.forgot}>Forgot Your Password?</a>

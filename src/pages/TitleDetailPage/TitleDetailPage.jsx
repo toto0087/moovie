@@ -15,7 +15,7 @@ export function TitleDetailPage() {
       <DetailHeader title={movie.title} genre={movie.genre} />
       <img src={movie.poster} alt={movie.title} className={styles.hero} />
       {movie.synopsis && <p className={styles.synopsis}>{movie.synopsis}</p>}
-      <ActionButtons ageRating={movie.ageRating} />
+      <ActionButtons movieId={movie.id} ageRating={movie.ageRating} />
     </article>
   );
 }

@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiSearch, FiStar, FiUser } from 'react-icons/fi';
+import { FiHome, FiSearch, FiUser } from 'react-icons/fi';
+import { FlameIcon } from '../icons/FlameIcon';
 import styles from './BottomNav.module.css';
 
 const HOME_PATHS = ['/home', '/novedades'];
@@ -8,7 +9,7 @@ const PROFILE_PATHS = ['/perfil', '/mi-lista'];
 const tabs = [
   { to: '/home', label: 'Inicio', icon: FiHome },
   { to: '/buscar', label: 'Buscar', icon: FiSearch },
-  { to: '/favoritos', label: 'Favoritos', icon: FiStar },
+  { to: '/tendencia', label: 'Tendencia', icon: FlameIcon },
   { to: '/perfil', label: 'Perfil', icon: FiUser },
 ];
 

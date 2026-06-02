@@ -29,6 +29,11 @@
   stroke-width: 2.5;
 }
 
+.pillActive {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
 .netflixN {
   display: inline-flex;
   align-items: center;
