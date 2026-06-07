@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { SearchBar } from '../../components/SearchBar/SearchBar';
 import { VoiceSearchAgent } from '../../components/VoiceSearchAgent/VoiceSearchAgent';
 import { MovieGrid } from '../../components/MovieGrid/MovieGrid';
-import { movies, popularNow, sortByPopularityNow } from '../../data/movies';
+import api from '../../services/api';
 import {
   AGENT_GREETING,
   VOICE_DEMO_PROMPT,
@@ -12,28 +12,36 @@ import {
 } from './searchAgent';
 import styles from './SearchPage.module.css';
 
-function filterMovies(query) {
-  const q = query.trim().toLowerCase();
-  if (!q) return popularNow;
-  return sortByPopularityNow(
-    movies.filter(
-      (m) =>
-        m.title.toLowerCase().includes(q) ||
-        m.genre?.toLowerCase().includes(q) ||
-        m.synopsis?.toLowerCase().includes(q)
-    )
-  );
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
 }
 
 export function SearchPage() {
   const [search, setSearch] = useState('');
+  const [results, setResults] = useState([]);
   const [agentOpen, setAgentOpen] = useState(false);
   const [agentStatus, setAgentStatus] = useState('idle');
   const [messages, setMessages] = useState([AGENT_GREETING]);
   const [transcript, setTranscript] = useState('');
   const timersRef = useRef([]);
+  const debouncedSearch = useDebounce(search, 400);
 
-  const filtered = useMemo(() => filterMovies(search), [search]);
+  useEffect(() => {
+    if (debouncedSearch.trim().length >= 2) {
+      api.get('/movies/search', { params: { q: debouncedSearch.trim() } })
+        .then((res) => setResults(res.data))
+        .catch(() => setResults([]));
+    } else {
+      api.get('/movies/trending')
+        .then((res) => setResults(res.data))
+        .catch(() => setResults([]));
+    }
+  }, [debouncedSearch]);
 
   const clearTimers = useCallback(() => {
     timersRef.current.forEach(clearTimeout);
@@ -48,7 +56,6 @@ export function SearchPage() {
       prompt.response ?? getAgentResponse(typeof prompt === 'string' ? prompt : label)?.response;
     const query =
       prompt.query ?? getAgentResponse(typeof prompt === 'string' ? prompt : label)?.query ?? label;
-
     return { label, response, query };
   }, []);
 
@@ -64,7 +71,7 @@ export function SearchPage() {
       setTranscript('');
       setAgentStatus('idle');
     },
-    [resolveAgentReply]
+    [resolveAgentReply],
   );
 
   const runVoiceFlow = useCallback(
@@ -73,16 +80,14 @@ export function SearchPage() {
       if (!agentOpen) setAgentOpen(true);
       setAgentStatus('listening');
       setTranscript('');
-
       const label = prompt.label ?? prompt;
-
       timersRef.current.push(
         setTimeout(() => setTranscript(label), 700),
         setTimeout(() => setAgentStatus('thinking'), 1600),
-        setTimeout(() => finishAgentTurn(prompt), 2800)
+        setTimeout(() => finishAgentTurn(prompt), 2800),
       );
     },
-    [agentOpen, clearTimers, finishAgentTurn]
+    [agentOpen, clearTimers, finishAgentTurn],
   );
 
   const handleListen = useCallback(() => {
@@ -100,18 +105,16 @@ export function SearchPage() {
     (text) => {
       const reply = getAgentResponse(text);
       if (!reply) return;
-
       clearTimers();
       setAgentStatus('thinking');
-
       timersRef.current.push(
         setTimeout(
           () => finishAgentTurn({ label: reply.label, response: reply.response, query: reply.query }),
-          900
-        )
+          900,
+        ),
       );
     },
-    [clearTimers, finishAgentTurn]
+    [clearTimers, finishAgentTurn],
   );
 
   const handleSuggestion = useCallback(
@@ -120,7 +123,7 @@ export function SearchPage() {
       setAgentStatus('thinking');
       timersRef.current.push(setTimeout(() => finishAgentTurn(item), 700));
     },
-    [clearTimers, finishAgentTurn]
+    [clearTimers, finishAgentTurn],
   );
 
   const toggleAgent = useCallback(() => {
@@ -169,12 +172,12 @@ export function SearchPage() {
         <h2 id="search-results-heading" className={styles.resultsTitle}>
           {resultsTitle}
         </h2>
-        {filtered.length === 0 ? (
+        {results.length === 0 ? (
           <p className={styles.empty}>
             No encontramos títulos con esa búsqueda. Probá con el agente o otro término.
           </p>
         ) : (
-          <MovieGrid movies={filtered} />
+          <MovieGrid movies={results} />
         )}
       </section>
     </div>

@@ -36,9 +36,11 @@ const MENU_GROUPS = [
   },
 ];
 
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534809027765-8fe8317e8a58?w=200&h=200&fit=crop';
+
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
   const handleLogout = () => {
@@ -69,15 +71,15 @@ export function ProfilePage() {
       <section className={styles.profileCard} aria-label="Información del usuario">
         <div className={styles.avatarWrap}>
           <img
-            src="https://images.unsplash.com/photo-1534809027765-8fe8317e8a58?w=200&h=200&fit=crop"
+            src={user?.avatar_url ?? DEFAULT_AVATAR}
             alt=""
             className={styles.avatar}
           />
         </div>
         <div className={styles.profileInfo}>
-          <h2 className={styles.name}>María González</h2>
-          <p className={styles.email}>maria.gonzalez@email.com</p>
-          <span className={styles.planBadge}>Plan Premium</span>
+          <h2 className={styles.name}>{user?.name ?? 'Usuario'}</h2>
+          <p className={styles.email}>{user?.email ?? ''}</p>
+          <span className={styles.planBadge}>Plan {user?.plan === 'premium' ? 'Premium' : 'Free'}</span>
         </div>
       </section>
 

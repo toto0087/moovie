@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { PopularityTrendIcon } from '../PopularityTrendIcon/PopularityTrendIcon';
-import { platformMeta } from '../../data/movies';
 import styles from './MovieCard.module.css';
 
 const platformClass = {
@@ -15,26 +14,23 @@ const trendLabels = {
 };
 
 export function MovieCard({ movie }) {
-  const platform = platformMeta[movie.platform];
-  const trend = movie.popularityTrend;
+  const platform = movie.platform;
+  const trend = movie.popularity_trend;
 
   return (
     <Link to={`/titulo/${movie.id}`} className={styles.card}>
       <div className={styles.posterWrap}>
-        <img src={movie.poster} alt={movie.title} className={styles.poster} loading="lazy" />
+        <img src={movie.poster_url} alt={movie.title} className={styles.poster} loading="lazy" />
         {platform && (
           <div className={styles.platformRow}>
             <span
-              className={`${styles.platformBadge} ${platformClass[movie.platform] ?? ''}`}
-              aria-label={platform.label}
+              className={`${styles.platformBadge} ${platformClass[platform.slug] ?? ''}`}
+              aria-label={platform.name}
             >
-              {platform.short}
+              {platform.short_name}
             </span>
             {trend && (
-              <span
-                className={styles.trendBadge}
-                aria-label={trendLabels[trend]}
-              >
+              <span className={styles.trendBadge} aria-label={trendLabels[trend]}>
                 <PopularityTrendIcon trend={trend} />
               </span>
             )}

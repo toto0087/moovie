@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FiX, FiChevronDown } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
@@ -6,17 +7,35 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import styles from './JoinUsPage.module.css';
 
+const COUNTRIES = ['Argentina', 'Chile', 'México', 'España', 'Estados Unidos'];
+
 export function JoinUsPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, register } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [country, setCountry] = useState('Argentina');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (isAuthenticated) {
     return <Navigate to="/home" replace />;
   }
 
-  const handleSuccess = () => {
-    login();
-    navigate('/home');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await register(email, password, `${firstName} ${lastName}`.trim(), country);
+      navigate('/home');
+    } catch (err) {
+      setError(err.response?.data?.message ?? 'Error al crear la cuenta');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,22 +51,25 @@ export function JoinUsPage() {
         Create your Moovi Member profile and get first access to all catalog.
       </p>
 
-      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); handleSuccess(); }}>
-        <Input type="email" placeholder="name@email.com" required />
-        <Input type="password" placeholder="Password" required />
-        <Input type="text" placeholder="First Name" required />
-        <Input type="text" placeholder="Last Name" required />
-        <Input type="text" placeholder="Date of Birth" />
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <Input type="email" placeholder="name@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input type="password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Input type="text" placeholder="First Name" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+        <Input type="text" placeholder="Last Name" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+
         <div className={styles.selectWrap}>
-          <select className={styles.select} defaultValue="Argentina" aria-label="País">
-            <option>Argentina</option>
-            <option>Chile</option>
-            <option>México</option>
-            <option>España</option>
-            <option>Estados Unidos</option>
+          <select
+            className={styles.select}
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            aria-label="País"
+          >
+            {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
           </select>
           <FiChevronDown className={styles.chevron} aria-hidden />
         </div>
+
+        {error && <p style={{ color: '#e50914', fontSize: '13px', margin: '0' }}>{error}</p>}
 
         <label className={styles.checkbox}>
           <input type="checkbox" />
@@ -61,7 +83,9 @@ export function JoinUsPage() {
           <a href="#">Privacy Policy</a> and <a href="#">Terms of Use</a>.
         </p>
 
-        <Button variant="primary" type="submit">Join Us</Button>
+        <Button variant="primary" type="submit" disabled={loading}>
+          {loading ? 'Creando cuenta...' : 'Join Us'}
+        </Button>
       </form>
 
       <p className={styles.footer}>

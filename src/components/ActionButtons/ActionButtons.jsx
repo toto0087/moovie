@@ -2,22 +2,28 @@ import { FiCheck, FiPlus } from 'react-icons/fi';
 import { useMyList } from '../../context/MyListContext';
 import styles from './ActionButtons.module.css';
 
-export function ActionButtons({ movieId, ageRating }) {
+export function ActionButtons({ movie, ageRating }) {
   const { isInList, toggleInList } = useMyList();
-  const inList = isInList(movieId);
+
+  if (!movie?.id) return null;
+
+  const inList = isInList(movie.id);
+  const platformName = movie.platform?.short_name ?? 'N';
 
   return (
     <div className={styles.row}>
       <button type="button" className={styles.pill}>
-        Ver en <span className={styles.netflixN}>N</span>
+        Ver en <span className={styles.netflixN}>{platformName}</span>
       </button>
-      <button type="button" className={styles.pill}>
-        + {ageRating}
-      </button>
+      {ageRating != null && (
+        <button type="button" className={styles.pill}>
+          + {ageRating}
+        </button>
+      )}
       <button
         type="button"
         className={`${styles.pill} ${inList ? styles.pillActive : ''}`}
-        onClick={() => toggleInList(movieId)}
+        onClick={() => toggleInList(movie.id)}
         aria-pressed={inList}
         aria-label={inList ? 'Quitar de mi lista' : 'Agregar a mi lista'}
       >
