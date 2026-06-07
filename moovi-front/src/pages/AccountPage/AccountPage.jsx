@@ -17,9 +17,13 @@ export function AccountPage() {
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
   const [saved, setSaved] = useState(false);
+  const [personalError, setPersonalError] = useState('');
   const [showPersonal, setShowPersonal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [showAddPlatform, setShowAddPlatform] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
   const [planMsg, setPlanMsg] = useState('');
@@ -62,27 +66,60 @@ export function AccountPage() {
   const handleCancelPersonal = () => {
     setName(profile.name);
     setEmail(profile.email);
+    setPersonalError('');
     setShowPersonal(false);
     setSaved(false);
   };
 
+  const handleCancelPassword = () => {
+    setCurrentPassword('');
+    setNewPassword('');
+    setPasswordError('');
+    setShowPassword(false);
+  };
+
+  const resolveApiError = (err, fallback) => {
+    const msg = err.response?.data?.message;
+    return Array.isArray(msg) ? msg.join(', ') : msg ?? fallback;
+  };
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    setPersonalError('');
     try {
-      await updateProfile({ name: name.trim() || profile.name });
+      await updateProfile({
+        name: name.trim() || profile.name,
+        email: email.trim() || profile.email,
+      });
       setSaved(true);
       setShowPersonal(false);
       setTimeout(() => setSaved(false), 2500);
-    } catch {
-      setSaved(false);
+    } catch (err) {
+      const text = resolveApiError(err, t('common.error'));
+      setPersonalError(
+        text.includes('registrado') ? t('account.emailTaken') : text
+      );
     }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    setPasswordMsg(t('account.passwordUpdated'));
-    setShowPassword(false);
-    setTimeout(() => setPasswordMsg(''), 3000);
+    setPasswordError('');
+    try {
+      await updateProfile({ currentPassword, newPassword });
+      setCurrentPassword('');
+      setNewPassword('');
+      setPasswordMsg(t('account.passwordUpdated'));
+      setShowPassword(false);
+      setTimeout(() => setPasswordMsg(''), 3000);
+    } catch (err) {
+      const text = resolveApiError(err, t('common.error'));
+      setPasswordError(
+        text.includes('incorrecta') || err.response?.status === 401
+          ? t('account.passwordWrong')
+          : text
+      );
+    }
   };
 
   const showPlanFeedback = (message) => {
@@ -139,10 +176,12 @@ export function AccountPage() {
                 id="account-email"
                 type="email"
                 value={email}
-                readOnly
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('account.emailPlaceholder')}
+                required
               />
             </div>
+            {personalError && <p className={styles.feedbackError}>{personalError}</p>}
             <div className={styles.formActions}>
               <Button variant="primary" type="submit">
                 {saved ? (
@@ -292,14 +331,29 @@ export function AccountPage() {
               <label className={styles.fieldLabel} htmlFor="current-pw">
                 {t('account.currentPassword')}
               </label>
-              <Input id="current-pw" type="password" required minLength={6} />
+              <Input
+                id="current-pw"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                minLength={6}
+              />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel} htmlFor="new-pw">
                 {t('account.newPassword')}
               </label>
-              <Input id="new-pw" type="password" required minLength={6} />
+              <Input
+                id="new-pw"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+              />
             </div>
+            {passwordError && <p className={styles.feedbackError}>{passwordError}</p>}
             <div className={styles.formActions}>
               <Button variant="primary" type="submit">
                 {t('common.update')}
@@ -307,7 +361,7 @@ export function AccountPage() {
               <button
                 type="button"
                 className={styles.cancelBtn}
-                onClick={() => setShowPassword(false)}
+                onClick={handleCancelPassword}
               >
                 {t('common.cancel')}
               </button>

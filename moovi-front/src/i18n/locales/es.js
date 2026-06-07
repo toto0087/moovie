@@ -146,6 +146,8 @@ export default {
     currentPassword: 'Contraseña actual',
     newPassword: 'Nueva contraseña',
     passwordUpdated: 'Contraseña actualizada correctamente.',
+    passwordWrong: 'La contraseña actual no es correcta.',
+    emailTaken: 'Ese email ya está registrado.',
   },
   help: {
     title: 'Ayuda',

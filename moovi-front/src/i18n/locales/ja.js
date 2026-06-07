@@ -138,6 +138,8 @@ export default {
     currentPassword: '現在のパスワード',
     newPassword: '新しいパスワード',
     passwordUpdated: 'パスワードを更新しました。',
+    passwordWrong: '現在のパスワードが正しくありません。',
+    emailTaken: 'このメールアドレスは既に登録されています。',
   },
   help: {
     title: 'ヘルプ',

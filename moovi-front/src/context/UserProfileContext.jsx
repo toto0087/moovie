@@ -54,16 +54,20 @@ export function UserProfileProvider({ children }) {
     async (patch) => {
       const apiPatch = {};
       if (patch.name !== undefined) apiPatch.name = patch.name;
+      if (patch.email !== undefined) apiPatch.email = patch.email;
       if (patch.country !== undefined) apiPatch.country = patch.country;
       if (patch.avatar_url !== undefined) apiPatch.avatar_url = patch.avatar_url;
       if (patch.avatarUrl !== undefined) apiPatch.avatar_url = patch.avatarUrl;
       if (patch.plan !== undefined) apiPatch.plan = patch.plan;
+      if (patch.newPassword !== undefined) apiPatch.new_password = patch.newPassword;
+      if (patch.currentPassword !== undefined) apiPatch.current_password = patch.currentPassword;
 
       if (Object.keys(apiPatch).length === 0) return;
 
       const { data } = await api.put('/users/me', apiPatch);
       setFullProfile(data);
       await refreshUser();
+      return data;
     },
     [refreshUser]
   );

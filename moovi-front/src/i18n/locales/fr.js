@@ -138,6 +138,8 @@ export default {
     currentPassword: 'Mot de passe actuel',
     newPassword: 'Nouveau mot de passe',
     passwordUpdated: 'Mot de passe mis à jour.',
+    passwordWrong: 'Le mot de passe actuel est incorrect.',
+    emailTaken: 'Cet e-mail est déjà enregistré.',
   },
   help: {
     title: 'Aide',

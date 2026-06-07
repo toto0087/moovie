@@ -138,6 +138,8 @@ export default {
     currentPassword: '当前密码',
     newPassword: '新密码',
     passwordUpdated: '密码已成功更新。',
+    passwordWrong: '当前密码不正确。',
+    emailTaken: '该邮箱已被注册。',
   },
   help: {
     title: '帮助',

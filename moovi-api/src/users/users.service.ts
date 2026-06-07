@@ -1,5 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { MoviesLocalizationService } from '../movies/movies-localization.service';
 import { MoviesService } from '../movies/movies.service';
@@ -26,7 +33,36 @@ export class UsersService {
   }
 
   async updateProfile(userId: number, dto: UpdateProfileDto) {
-    await this.users.update(userId, dto);
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    const updates: Partial<UserEntity> = {};
+
+    if (dto.name !== undefined) updates.name = dto.name;
+    if (dto.country !== undefined) updates.country = dto.country;
+    if (dto.avatar_url !== undefined) updates.avatar_url = dto.avatar_url;
+    if (dto.plan !== undefined) updates.plan = dto.plan;
+
+    if (dto.email !== undefined && dto.email !== user.email) {
+      const existing = await this.users.findOne({ where: { email: dto.email } });
+      if (existing) throw new ConflictException('El email ya está registrado');
+      updates.email = dto.email;
+    }
+
+    if (dto.new_password !== undefined) {
+      if (!dto.current_password) {
+        throw new BadRequestException('La contraseña actual es requerida');
+      }
+      const match = await bcrypt.compare(dto.current_password, user.password_hash);
+      if (!match) throw new UnauthorizedException('Contraseña actual incorrecta');
+      updates.password_hash = await bcrypt.hash(dto.new_password, 10);
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return this.getProfile(userId);
+    }
+
+    await this.users.update(userId, updates);
     return this.getProfile(userId);
   }
 
@@ -60,5 +96,4 @@ export class UsersService {
     );
     return { removed: true };
   }
-
 }

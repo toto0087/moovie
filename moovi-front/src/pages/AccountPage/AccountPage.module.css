@@ -174,3 +174,10 @@
 [data-theme='dark'] .feedback {
   color: #5fd068;
 }
+
+.feedbackError {
+  margin: 0 var(--space-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: #e50914;
+}
