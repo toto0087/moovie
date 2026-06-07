@@ -1,0 +1,113 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: 14px;
+  background: var(--color-search-bg);
+  color: var(--color-text);
+  transition: background 0.15s;
+}
+
+.card:active {
+  background: var(--color-menu-divider);
+}
+
+.unread {
+  background: var(--color-bg);
+  box-shadow: inset 3px 0 0 var(--color-text);
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.iconWrap svg {
+  width: 20px;
+  height: 20px;
+}
+
+.flameIcon {
+  width: 20px;
+  height: 14px;
+}
+
+.iconUnread {
+  color: var(--color-text);
+  background: rgba(95, 208, 104, 0.15);
+}
+
+.iconUnread .flameIcon path {
+  stroke: #5fd068;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-netflix);
+}
+
+.message {
+  margin: 0 0 var(--space-xs);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text-body);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.platform {
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-search-bg);
+  font-weight: 600;
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}

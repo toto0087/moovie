@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -20,8 +20,8 @@ export class UsersController {
   }
 
   @Get('me/list')
-  getList(@CurrentUser() user: any) {
-    return this.usersService.getListDirect(user.id);
+  getList(@CurrentUser() user: any, @Query('lang') lang?: string) {
+    return this.usersService.getListDirect(user.id, lang);
   }
 
   @Post('me/list/:movieId')

@@ -1,0 +1,47 @@
+export default {
+  greeting: 'Bonjour, je suis Moovi. Dites-moi votre humeur ou ce que vous voulez voir et je vous propose une sélection.',
+  statusIdle: 'Écrivez ou utilisez le micro',
+  statusListening: 'Écoute…',
+  statusThinking: 'Je cherche le meilleur pour vous…',
+  panelAria: 'Assistant Moovi',
+  closeAria: 'Fermer l\'assistant',
+  chatAria: 'Conversation avec l\'assistant',
+  suggestionsLabel: 'Suggestions',
+  placeholder: 'Écrire à Moovi…',
+  messageAria: 'Message pour l\'assistant',
+  micStart: 'Parler à l\'assistant',
+  micStop: 'Arrêter l\'écoute',
+  sendAria: 'Envoyer le message',
+  suggestions: [
+    {
+      id: 'anime',
+      label: 'Un peu d\'anime',
+      query: 'anime',
+      response: 'Parfait : Demon Slayer et One Piece sont très recherchés en anime.',
+    },
+    {
+      id: 'terror',
+      label: 'Horreur ce soir',
+      query: 'terror',
+      response: 'Pour une soirée intense : Stranger Things et The Walking Dead conviennent bien.',
+    },
+    {
+      id: 'drama',
+      label: 'Drame historique',
+      query: 'drama',
+      response: 'The Crown et Vikings sont excellents pour le drame historique.',
+    },
+    {
+      id: 'corto',
+      label: 'Quelque chose de court',
+      query: 'whiplash',
+      response: 'Whiplash est idéal pour un film percutant sans marathon.',
+    },
+  ],
+  demoPrompt: {
+    label: 'Je veux une série suspense',
+    query: 'suspenso',
+    response: 'Stranger Things est mon premier choix : mystère, nostalgie et suspense.',
+  },
+  fallbackResponse: 'Compris. Voici ce que j\'ai trouvé pour « {{query}} ».',
+};

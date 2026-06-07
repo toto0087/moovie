@@ -1,0 +1,124 @@
+.quickLinks {
+  display: flex;
+  flex-direction: column;
+}
+
+.quickLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px var(--space-md);
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.quickLink:not(:last-child) {
+  border-bottom: 1px solid var(--color-menu-divider);
+}
+
+.quickLink svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+}
+
+.quickLink:active {
+  background: var(--color-menu-divider);
+}
+
+.faqList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 14px var(--space-md);
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.faqList li:not(:last-child) .faqQuestion,
+.faqList li:not(:last-child) .faqAnswer {
+  border-bottom: 1px solid var(--color-menu-divider);
+}
+
+.faqIcon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-secondary);
+  transition: transform 0.2s;
+}
+
+.faqIconOpen {
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  margin: 0;
+  padding: 0 var(--space-md) var(--space-md);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-body);
+}
+
+.contactForm {
+  padding-bottom: var(--space-xs);
+}
+
+.fieldGroup {
+  padding: var(--space-md) var(--space-md) 0;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px var(--space-md);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 15px;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  resize: vertical;
+  min-height: 96px;
+}
+
+.formActions {
+  padding: var(--space-md);
+}
+
+.legal {
+  margin: 0;
+  padding: 0 var(--space-xs);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.legal a {
+  color: var(--color-text);
+  font-weight: 600;
+}

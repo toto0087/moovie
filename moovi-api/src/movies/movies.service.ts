@@ -3,15 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MovieEntity } from './movie.entity';
 import { MoviesQueryDto } from './dto/movies-query.dto';
+import { FormattedMovie, MoviesLocalizationService } from './movies-localization.service';
 
 @Injectable()
 export class MoviesService {
   constructor(
     @InjectRepository(MovieEntity)
     private readonly repo: Repository<MovieEntity>,
+    private readonly localization: MoviesLocalizationService,
   ) {}
 
-  async findAll(query: MoviesQueryDto) {
+  async findAll(query: MoviesQueryDto, lang?: string) {
     const { page = 1, limit = 20, tab = 'novedades' } = query;
     const skip = (page - 1) * limit;
 
@@ -25,26 +27,26 @@ export class MoviesService {
       qb.orderBy('m.release_year', 'DESC')
         .addOrderBy('m.created_at', 'DESC');
     } else {
-      // novedades
       qb.orderBy('m.created_at', 'DESC');
     }
 
     const [data, total] = await qb.skip(skip).take(limit).getManyAndCount();
-    return { data: data.map(this.format), total, page, limit };
+    const movies = await this.localization.localizeMany(data.map((m) => this.format(m)), lang);
+    return { data: movies, total, page, limit };
   }
 
-  async findTrending() {
+  async findTrending(lang?: string) {
     const items = await this.repo.find({
       where: { trending: true },
       relations: { platform: true },
       order: { popularity_rank: 'ASC' },
       take: 20,
     });
-    return items.map(this.format);
+    return this.localization.localizeMany(items.map((m) => this.format(m)), lang);
   }
 
-  async search(q: string) {
-    if (!q || q.trim().length < 2) return this.findTrending();
+  async search(q: string, lang?: string) {
+    if (!q || q.trim().length < 2) return this.findTrending(lang);
 
     const term = q.trim();
     const items = await this.repo
@@ -60,26 +62,26 @@ export class MoviesService {
       .limit(50)
       .getMany();
 
-    return items.map(this.format);
+    return this.localization.localizeMany(items.map((m) => this.format(m)), lang);
   }
 
-  async findByPlatform(slug: string) {
+  async findByPlatform(slug: string, lang?: string) {
     const items = await this.repo
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.platform', 'platform')
       .where('platform.slug = :slug', { slug })
       .orderBy('m.popularity_rank', 'ASC')
       .getMany();
-    return items.map(this.format);
+    return this.localization.localizeMany(items.map((m) => this.format(m)), lang);
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, lang?: string) {
     const movie = await this.repo.findOne({ where: { id }, relations: { platform: true } });
     if (!movie) throw new NotFoundException('Título no encontrado');
-    return this.format(movie);
+    return this.localization.localizeOne(this.format(movie), lang);
   }
 
-  private format(m: MovieEntity) {
+  format(m: MovieEntity): FormattedMovie {
     return {
       id: m.id,
       tmdb_id: m.tmdb_id,
@@ -97,7 +99,7 @@ export class MoviesService {
       popularity_rank: m.popularity_rank,
       popularity_trend: m.popularity_trend,
       genres: (() => { try { return m.genres ? JSON.parse(m.genres) : []; } catch { return []; } })(),
-      media_type: m.media_type,
+      media_type: m.media_type as 'movie' | 'tv',
       runtime: m.runtime,
       release_year: m.release_year,
     };

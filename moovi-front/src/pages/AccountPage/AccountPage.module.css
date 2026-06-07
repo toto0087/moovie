@@ -1,0 +1,176 @@
+.fieldGroup {
+  padding: var(--space-md) var(--space-md) 0;
+}
+
+.fieldGroup:last-of-type {
+  padding-bottom: var(--space-md);
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.formActions {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.formActions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.planExpand {
+  padding: var(--space-md);
+}
+
+.planExpandLabel {
+  margin: 0 0 var(--space-md);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.planOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.planOption {
+  position: relative;
+  padding: var(--space-md);
+  border-radius: 14px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.planOptionActive {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-text);
+}
+
+.planOptionCurrent {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.planOptionTitle {
+  margin: 0 0 var(--space-xs);
+  padding-right: 72px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.planOptionDesc {
+  margin: 0 0 var(--space-sm);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text-body);
+}
+
+.planIncludes {
+  margin: 0 0 var(--space-xs);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.planOptionList {
+  margin: 0 0 var(--space-md);
+  padding-left: var(--space-lg);
+  font-size: 13px;
+  color: var(--color-text-body);
+  line-height: 1.5;
+}
+
+.planSwitchBtn {
+  width: 100%;
+  padding: 12px var(--space-md);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.planCancelBlock {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-menu-divider);
+  text-align: center;
+}
+
+.planCancelDesc {
+  margin: 0 0 var(--space-sm);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.planCancelBtn {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-netflix);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: var(--space-sm);
+}
+
+.planExpand .feedback {
+  margin: var(--space-md) 0 0;
+  text-align: center;
+}
+
+.planExpand .cancelBtn {
+  margin-top: var(--space-md);
+}
+
+.expandableForm {
+  padding: var(--space-md) 0 0;
+}
+
+.cancelBtn {
+  display: block;
+  width: calc(100% - var(--space-md) * 2);
+  margin: var(--space-sm) var(--space-md) var(--space-md);
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--space-sm);
+}
+
+.feedback {
+  margin: var(--space-sm) var(--space-md) 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+[data-theme='dark'] .feedback {
+  color: #5fd068;
+}

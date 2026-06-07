@@ -70,12 +70,12 @@ export class TmdbClient {
     return null;
   }
 
-  async getTVDetails(tmdbId: number): Promise<any> {
-    return this.get<any>(`/tv/${tmdbId}`, { language: 'es-AR' });
+  async getTVDetails(tmdbId: number, language = 'es-AR'): Promise<any> {
+    return this.get<any>(`/tv/${tmdbId}`, { language });
   }
 
-  async getMovieDetails(tmdbId: number): Promise<any> {
-    return this.get<any>(`/movie/${tmdbId}`, { language: 'es-AR' });
+  async getMovieDetails(tmdbId: number, language = 'es-AR'): Promise<any> {
+    return this.get<any>(`/movie/${tmdbId}`, { language });
   }
 
   async getTVContentRating(tmdbId: number, country: string): Promise<string | null> {

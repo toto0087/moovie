@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -12,4 +12,8 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsUrl()
   avatar_url?: string;
+
+  @IsOptional()
+  @IsIn(['free', 'premium'])
+  plan?: 'free' | 'premium';
 }
