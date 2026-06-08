@@ -6,6 +6,8 @@ import { MovieGrid } from '../../components/MovieGrid/MovieGrid';
 import { useAppSettings } from '../../context/AppSettingsContext';
 import { useI18n } from '../../context/I18nContext';
 import { useMovieSearch } from '../../hooks/useMovieSearch';
+import { useGenres } from '../../hooks/useGenres';
+import { GenreFilter } from '../../components/GenreFilter/GenreFilter';
 import { addSearchQuery, readSearchHistory } from '../../utils/searchHistory';
 import {
   getAgentGreeting,
@@ -19,7 +21,9 @@ export function SearchPage() {
   const { t, language } = useI18n();
   const { settings } = useAppSettings();
   const [search, setSearch] = useState('');
-  const { movies: filtered, loading } = useMovieSearch(search);
+  const [activeGenre, setActiveGenre] = useState(null);
+  const genres = useGenres();
+  const { movies: filtered, loading } = useMovieSearch(search, activeGenre);
   const [recentSearches, setRecentSearches] = useState(readSearchHistory);
   const [agentOpen, setAgentOpen] = useState(false);
   const [agentStatus, setAgentStatus] = useState('idle');
@@ -165,7 +169,17 @@ export function SearchPage() {
           onAgentClick={toggleAgent}
           agentOpen={agentOpen}
         />
-        {!search.trim() && settings.saveSearchHistory && recentSearches.length > 0 && (
+
+        {genres.length > 0 && (
+          <GenreFilter
+            genres={genres}
+            activeGenre={activeGenre}
+            onSelect={setActiveGenre}
+            allLabel="Todo"
+          />
+        )}
+
+        {!search.trim() && !activeGenre && settings.saveSearchHistory && recentSearches.length > 0 && (
           <div className={styles.recent} aria-label={t('search.recentAria')}>
             <p className={styles.recentLabel}>{t('search.recent')}</p>
             <div className={styles.recentChips}>

@@ -13,6 +13,7 @@ export default {
   nav: {
     main: 'Navegación principal',
     home: 'Inicio',
+    catalog: 'Novedades',
     search: 'Buscar',
     trending: 'Tendencia',
     profile: 'Perfil',
@@ -20,6 +21,10 @@ export default {
   home: {
     popular: 'Populares',
     empty: 'No hay títulos disponibles en tus plataformas.',
+    filterAll: 'Todo',
+    filterMovies: 'Películas',
+    filterSeries: 'Series',
+    loadMore: 'Cargar más',
   },
   contentTabs: {
     new: 'Novedades',

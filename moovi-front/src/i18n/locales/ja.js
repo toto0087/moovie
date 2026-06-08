@@ -11,11 +11,12 @@ export default {
   nav: {
     main: 'メインナビゲーション',
     home: 'ホーム',
+    catalog: '新着',
     search: '検索',
     trending: 'トレンド',
     profile: 'プロフィール',
   },
-  home: { popular: '人気' },
+  home: { popular: '人気', filterAll: 'すべて', filterMovies: '映画', filterSeries: 'ドラマ', loadMore: 'もっと見る' },
   contentTabs: {
     new: '新着',
     recent: '最近追加',

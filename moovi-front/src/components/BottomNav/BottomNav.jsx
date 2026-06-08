@@ -1,14 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiSearch, FiUser } from 'react-icons/fi';
+import { FiHome, FiSearch, FiUser, FiGrid } from 'react-icons/fi';
 import { FlameIcon } from '../icons/FlameIcon';
 import { useI18n } from '../../context/I18nContext';
 import styles from './BottomNav.module.css';
 
-const HOME_PATHS = ['/home', '/novedades'];
+const HOME_PATHS = ['/home'];
 const PROFILE_PATHS = ['/perfil', '/mi-lista'];
 
 const TAB_KEYS = [
   { to: '/home', labelKey: 'nav.home', icon: FiHome },
+  { to: '/novedades', labelKey: 'nav.catalog', icon: FiGrid },
   { to: '/buscar', labelKey: 'nav.search', icon: FiSearch },
   { to: '/tendencia', labelKey: 'nav.trending', icon: FlameIcon },
   { to: '/perfil', labelKey: 'nav.profile', icon: FiUser },

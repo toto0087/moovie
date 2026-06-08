@@ -11,11 +11,12 @@ export default {
   nav: {
     main: 'Navigation principale',
     home: 'Accueil',
+    catalog: 'Nouveautés',
     search: 'Rechercher',
     trending: 'Tendances',
     profile: 'Profil',
   },
-  home: { popular: 'Populaires' },
+  home: { popular: 'Populaires', filterAll: 'Tout', filterMovies: 'Films', filterSeries: 'Séries', loadMore: 'Charger plus' },
   contentTabs: {
     new: 'Nouveautés',
     recent: 'Ajouts récents',

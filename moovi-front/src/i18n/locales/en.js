@@ -11,11 +11,12 @@ export default {
   nav: {
     main: 'Main navigation',
     home: 'Home',
+    catalog: 'New',
     search: 'Search',
     trending: 'Trending',
     profile: 'Profile',
   },
-  home: { popular: 'Popular' },
+  home: { popular: 'Popular', filterAll: 'All', filterMovies: 'Movies', filterSeries: 'Series', loadMore: 'Load more' },
   contentTabs: {
     new: 'New',
     recent: 'Recently added',

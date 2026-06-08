@@ -11,11 +11,12 @@ export default {
   nav: {
     main: '主导航',
     home: '首页',
+    catalog: '新片',
     search: '搜索',
     trending: '热门',
     profile: '个人',
   },
-  home: { popular: '热门' },
+  home: { popular: '热门', filterAll: '全部', filterMovies: '电影', filterSeries: '剧集', loadMore: '加载更多' },
   contentTabs: {
     new: '新片',
     recent: '最近添加',

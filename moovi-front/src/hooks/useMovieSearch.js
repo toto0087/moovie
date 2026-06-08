@@ -5,7 +5,7 @@ import { mapMovies } from '../utils/mapMovie';
 import { filterByPlatforms } from '../utils/filterByPlatforms';
 import { useUserProfile } from '../context/UserProfileContext';
 
-export function useMovieSearch(query, debounceMs = 400) {
+export function useMovieSearch(query, genre = null, debounceMs = 400) {
   const { language } = useI18n();
   const { activePlatforms } = useUserProfile();
   const [movies, setMovies] = useState([]);
@@ -20,15 +20,26 @@ export function useMovieSearch(query, debounceMs = 400) {
       setLoading(true);
       setError(null);
 
-      const request = trimmed.length >= 2
-        ? api.get('/movies/search', { params: { q: trimmed, lang: language } })
-        : api.get('/movies/trending', { params: { lang: language } });
+      let request;
+      if (trimmed.length >= 2) {
+        request = api.get('/movies/search', { params: { q: trimmed, lang: language } });
+      } else if (genre) {
+        request = api.get('/movies', { params: { genre, limit: 50, lang: language } });
+      } else {
+        request = api.get('/movies/trending', { params: { lang: language } });
+      }
 
       request
         .then(({ data }) => {
-          if (!cancelled) {
-            setMovies(filterByPlatforms(mapMovies(data), activePlatforms));
+          if (cancelled) return;
+          // trending/search return array; /movies returns { data: [...] }
+          const list = Array.isArray(data) ? data : (data.data ?? []);
+          let mapped = filterByPlatforms(mapMovies(list), activePlatforms);
+          // when text + genre both active, filter client-side by genre
+          if (trimmed.length >= 2 && genre) {
+            mapped = mapped.filter((m) => m.genre?.split(' · ').includes(genre));
           }
+          setMovies(mapped);
         })
         .catch((err) => {
           if (!cancelled) {
@@ -45,7 +56,7 @@ export function useMovieSearch(query, debounceMs = 400) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query, debounceMs, activePlatforms, language]);
+  }, [query, genre, debounceMs, activePlatforms, language]);
 
   return { movies, loading, error };
 }

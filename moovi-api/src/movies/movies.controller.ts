@@ -16,6 +16,11 @@ export class MoviesController {
     return this.moviesService.search(q ?? '', lang);
   }
 
+  @Get('genres')
+  getGenres() {
+    return this.moviesService.getGenres();
+  }
+
   @Get('platform/:slug')
   byPlatform(@Param('slug') slug: string, @Query('lang') lang?: string) {
     return this.moviesService.findByPlatform(slug, lang);

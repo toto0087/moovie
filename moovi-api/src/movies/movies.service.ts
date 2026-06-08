@@ -14,14 +14,25 @@ export class MoviesService {
   ) {}
 
   async findAll(query: MoviesQueryDto, lang?: string) {
-    const { page = 1, limit = 20, tab = 'novedades' } = query;
+    const page = Number(query.page ?? 1);
+    const limit = Math.min(Number(query.limit ?? 10), 50);
+    const tab = query.tab ?? 'novedades';
+    const { media_type, genre } = query;
     const skip = (page - 1) * limit;
 
     const qb = this.repo.createQueryBuilder('m')
       .leftJoinAndSelect('m.platform', 'platform');
 
+    if (media_type) {
+      qb.andWhere('m.media_type = :media_type', { media_type });
+    }
+
+    if (genre) {
+      qb.andWhere('JSON_CONTAINS(m.genres, :genre)', { genre: JSON.stringify(genre) });
+    }
+
     if (tab === 'populares') {
-      qb.where('m.trending = :t', { t: true })
+      qb.andWhere('m.trending = :t', { t: true })
         .orderBy('m.popularity_rank', 'ASC');
     } else if (tab === 'recientes') {
       qb.orderBy('m.release_year', 'DESC')
@@ -33,6 +44,30 @@ export class MoviesService {
     const [data, total] = await qb.skip(skip).take(limit).getManyAndCount();
     const movies = await this.localization.localizeMany(data.map((m) => this.format(m)), lang);
     return { data: movies, total, page, limit };
+  }
+
+  async getGenres(): Promise<string[]> {
+    const rows = await this.repo
+      .createQueryBuilder('m')
+      .select('m.genres', 'genres')
+      .where('m.genres IS NOT NULL AND m.genres != :empty', { empty: '[]' })
+      .getRawMany();
+
+    const genreCount = new Map<string, number>();
+    for (const row of rows) {
+      try {
+        const genres = JSON.parse(row.genres);
+        if (Array.isArray(genres)) {
+          genres.forEach((g: string) => {
+            if (g) genreCount.set(g, (genreCount.get(g) ?? 0) + 1);
+          });
+        }
+      } catch {}
+    }
+    return Array.from(genreCount.entries())
+      .filter(([, count]) => count >= 2)
+      .map(([genre]) => genre)
+      .sort((a, b) => a.localeCompare(b, 'es'));
   }
 
   async findTrending(lang?: string) {
