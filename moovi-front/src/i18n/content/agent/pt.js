@@ -1,0 +1,47 @@
+export default {
+  greeting: 'Olá, sou o Moovi. Conte seu mood ou o que quer ver e monto uma seleção.',
+  statusIdle: 'Escreva ou use o microfone',
+  statusListening: 'Ouvindo…',
+  statusThinking: 'Buscando o melhor para você…',
+  panelAria: 'Assistente Moovi',
+  closeAria: 'Fechar assistente',
+  chatAria: 'Conversa com o assistente',
+  suggestionsLabel: 'Sugestões',
+  placeholder: 'Escreva para o Moovi…',
+  messageAria: 'Mensagem para o assistente',
+  micStart: 'Falar com o assistente',
+  micStop: 'Parar de ouvir',
+  sendAria: 'Enviar mensagem',
+  suggestions: [
+    {
+      id: 'anime',
+      label: 'Algo de anime',
+      query: 'anime',
+      response: 'Ótimo: Demon Slayer e One Piece estão entre os anime mais buscados.',
+    },
+    {
+      id: 'terror',
+      label: 'Terror para hoje',
+      query: 'terror',
+      response: 'Para uma noite intensa: Stranger Things e The Walking Dead combinam muito.',
+    },
+    {
+      id: 'drama',
+      label: 'Drama histórico',
+      query: 'drama',
+      response: 'The Crown e Vikings são excelentes se você curte drama histórico.',
+    },
+    {
+      id: 'corto',
+      label: 'Algo curto',
+      query: 'whiplash',
+      response: 'Whiplash é ideal se você quer um filme forte sem maratona.',
+    },
+  ],
+  demoPrompt: {
+    label: 'Quero uma série de suspense',
+    query: 'suspenso',
+    response: 'Stranger Things é minha primeira recomendação: mistério, nostalgia e suspense.',
+  },
+  fallbackResponse: 'Entendido. Mostro o que encontrei para "{{query}}".',
+};

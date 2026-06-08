@@ -1,0 +1,81 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.sm {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 8px;
+}
+
+.md {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 9px;
+}
+
+.netflix {
+  background: var(--color-netflix);
+  font-size: 10px;
+  padding: 0;
+  width: 20px;
+}
+
+.sm.netflix {
+  font-size: 9px;
+  width: 16px;
+  padding: 0;
+}
+
+.hbo {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.disneyPlus {
+  background: linear-gradient(135deg, #113ccf 0%, #0e308a 100%);
+}
+
+.amazonPrime {
+  background: #00a8e1;
+}
+
+.appleTv {
+  background: #1d1d1f;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.paramountPlus {
+  background: #0064ff;
+}
+
+.starPlus {
+  background: linear-gradient(135deg, #ff3a7a 0%, #c4005a 100%);
+}
+
+.crunchyroll {
+  background: #f47521;
+}
+
+.plutoTv {
+  background: #fdd835;
+  color: #1a1a1a;
+}
+
+.mubi {
+  background: #0f0f0f;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.clarovideo {
+  background: #e30613;
+}

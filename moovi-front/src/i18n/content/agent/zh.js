@@ -1,0 +1,47 @@
+export default {
+  greeting: '你好，我是 Moovi。告诉我你的心情或想看什么，我会为你挑选内容。',
+  statusIdle: '输入文字或使用麦克风',
+  statusListening: '正在聆听…',
+  statusThinking: '正在为你寻找最佳推荐…',
+  panelAria: 'Moovi 助手',
+  closeAria: '关闭助手',
+  chatAria: '与助手对话',
+  suggestionsLabel: '建议',
+  placeholder: '给 Moovi 发消息…',
+  messageAria: '发给助手的消息',
+  micStart: '与助手对话',
+  micStop: '停止聆听',
+  sendAria: '发送消息',
+  suggestions: [
+    {
+      id: 'anime',
+      label: '想看动漫',
+      query: 'anime',
+      response: '推荐《鬼灭之刃》和《海贼王》，都是热门动漫。',
+    },
+    {
+      id: 'terror',
+      label: '今晚看恐怖',
+      query: 'terror',
+      response: '紧张氛围首选：《怪奇物语》和《行尸走肉》。',
+    },
+    {
+      id: 'drama',
+      label: '历史剧情',
+      query: 'drama',
+      response: '喜欢历史剧可以看《王冠》和《维京传奇》。',
+    },
+    {
+      id: 'corto',
+      label: '篇幅短一点',
+      query: 'whiplash',
+      response: '《爆裂鼓手》节奏紧凑，不用追长篇。',
+    },
+  ],
+  demoPrompt: {
+    label: '我想看悬疑剧',
+    query: 'suspenso',
+    response: '首推《怪奇物语》：神秘、怀旧又充满悬疑。',
+  },
+  fallbackResponse: '明白了。以下是为「{{query}}」找到的内容。',
+};

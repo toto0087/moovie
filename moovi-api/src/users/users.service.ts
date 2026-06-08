@@ -1,6 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { MoviesLocalizationService } from '../movies/movies-localization.service';
+import { MoviesService } from '../movies/movies.service';
 import { MovieEntity } from '../movies/movie.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserEntity } from './user.entity';
@@ -12,6 +21,8 @@ export class UsersService {
     private readonly users: Repository<UserEntity>,
     @InjectRepository(MovieEntity)
     private readonly movies: Repository<MovieEntity>,
+    private readonly moviesService: MoviesService,
+    private readonly localization: MoviesLocalizationService,
   ) {}
 
   async getProfile(userId: number) {
@@ -22,11 +33,40 @@ export class UsersService {
   }
 
   async updateProfile(userId: number, dto: UpdateProfileDto) {
-    await this.users.update(userId, dto);
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    const updates: Partial<UserEntity> = {};
+
+    if (dto.name !== undefined) updates.name = dto.name;
+    if (dto.country !== undefined) updates.country = dto.country;
+    if (dto.avatar_url !== undefined) updates.avatar_url = dto.avatar_url;
+    if (dto.plan !== undefined) updates.plan = dto.plan;
+
+    if (dto.email !== undefined && dto.email !== user.email) {
+      const existing = await this.users.findOne({ where: { email: dto.email } });
+      if (existing) throw new ConflictException('El email ya está registrado');
+      updates.email = dto.email;
+    }
+
+    if (dto.new_password !== undefined) {
+      if (!dto.current_password) {
+        throw new BadRequestException('La contraseña actual es requerida');
+      }
+      const match = await bcrypt.compare(dto.current_password, user.password_hash);
+      if (!match) throw new UnauthorizedException('Contraseña actual incorrecta');
+      updates.password_hash = await bcrypt.hash(dto.new_password, 10);
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return this.getProfile(userId);
+    }
+
+    await this.users.update(userId, updates);
     return this.getProfile(userId);
   }
 
-  async getListDirect(userId: number) {
+  async getListDirect(userId: number, lang?: string) {
     const rows = await this.movies
       .createQueryBuilder('m')
       .innerJoin('user_lists', 'ul', 'ul.movie_id = m.id AND ul.user_id = :userId', { userId })
@@ -34,7 +74,8 @@ export class UsersService {
       .orderBy('ul.added_at', 'DESC')
       .getMany();
 
-    return rows.map(this.formatMovie);
+    const formatted = rows.map((m) => this.moviesService.format(m));
+    return this.localization.localizeMany(formatted, lang);
   }
 
   async addToList(userId: number, movieId: number) {
@@ -54,31 +95,5 @@ export class UsersService {
       [userId, movieId],
     );
     return { removed: true };
-  }
-
-  private formatMovie(m: MovieEntity) {
-    return {
-      id: m.id,
-      tmdb_id: m.tmdb_id,
-      slug: m.slug,
-      title: m.title,
-      overview: m.overview,
-      poster_url: m.poster_url,
-      backdrop_url: m.backdrop_url,
-      age_rating: m.age_rating ?? null,
-      platform: m.platform
-        ? { id: m.platform.id, slug: m.platform.slug, name: m.platform.name, short_name: m.platform.short_name, color: m.platform.color }
-        : null,
-      trending: m.trending,
-      badge: m.badge ?? null,
-      popularity_rank: m.popularity_rank ?? null,
-      popularity_trend: m.popularity_trend ?? null,
-      genres: (() => {
-        try { return m.genres ? JSON.parse(m.genres) : []; } catch { return []; }
-      })(),
-      media_type: m.media_type,
-      runtime: m.runtime ?? null,
-      release_year: m.release_year ?? null,
-    };
   }
 }

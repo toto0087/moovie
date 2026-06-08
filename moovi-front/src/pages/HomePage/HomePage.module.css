@@ -1,0 +1,108 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--nav-height));
+  overflow: hidden;
+}
+
+/* Tabs variant: scroll natural del documento, sin height fija */
+.tabsPage {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - var(--nav-height));
+}
+
+.section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  flex-shrink: 0;
+  padding: var(--space-sm) var(--space-lg) var(--space-sm);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.loading,
+.empty {
+  padding: var(--space-lg);
+  color: var(--text-muted, #888);
+  text-align: center;
+}
+
+.genreFilters {
+  display: flex;
+  gap: var(--space-xs, 6px);
+  padding: 0 var(--space-lg) var(--space-sm);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+  /* fade hint on right edge */
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+}
+
+.genreFilters::-webkit-scrollbar {
+  display: none;
+}
+
+.genreChip {
+  border: 1.5px solid var(--color-border, #444);
+  background: none;
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.genreChip:hover {
+  border-color: var(--color-text);
+}
+
+.genreChipActive {
+  background: var(--color-text);
+  color: var(--color-bg, #000);
+  border-color: var(--color-text);
+}
+
+.loadMoreFloat {
+  position: fixed;
+  bottom: calc(var(--nav-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.loadMoreBtn {
+  border: 1.5px solid var(--color-border, #444);
+  background: var(--color-bg, #111);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 28px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: background 0.15s, color 0.15s;
+}
+
+.loadMoreBtn:hover:not(:disabled) {
+  background: var(--color-text);
+  color: var(--color-bg, #000);
+}
+
+.loadMoreBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

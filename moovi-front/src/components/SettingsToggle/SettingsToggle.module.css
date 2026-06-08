@@ -1,0 +1,30 @@
+.toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  border: none;
+  padding: 2px;
+  background: var(--color-border);
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.on {
+  background: var(--color-text);
+  justify-content: flex-end;
+}
+
+.thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+[data-theme='dark'] .on .thumb {
+  background: #0f0f0f;
+}

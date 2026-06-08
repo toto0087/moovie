@@ -16,6 +16,6 @@ import { TmdbClient } from './tmdb.client';
   ],
   controllers: [SyncController],
   providers: [SyncService, TmdbClient],
-  exports: [SyncService],
+  exports: [SyncService, TmdbClient],
 })
 export class SyncModule {}

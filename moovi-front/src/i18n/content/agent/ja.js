@@ -1,0 +1,47 @@
+export default {
+  greeting: 'こんにちは、Mooviです。気分や見たいものを教えてください。おすすめを選びます。',
+  statusIdle: '入力するかマイクを使ってください',
+  statusListening: '聞いています…',
+  statusThinking: 'あなたに最適な作品を探しています…',
+  panelAria: 'Mooviアシスタント',
+  closeAria: 'アシスタントを閉じる',
+  chatAria: 'エージェントとの会話',
+  suggestionsLabel: '提案',
+  placeholder: 'Mooviにメッセージ…',
+  messageAria: 'エージェントへのメッセージ',
+  micStart: 'エージェントと話す',
+  micStop: '聞き取りを停止',
+  sendAria: 'メッセージを送信',
+  suggestions: [
+    {
+      id: 'anime',
+      label: 'アニメが見たい',
+      query: 'anime',
+      response: 'おすすめは「鬼滅の刃」と「ワンピース」。人気のアニメです。',
+    },
+    {
+      id: 'terror',
+      label: '今夜はホラー',
+      query: 'terror',
+      response: '緊張感なら「ストレンジャー・シングス」と「ウォーキング・デッド」がぴったりです。',
+    },
+    {
+      id: 'drama',
+      label: '歴史ドラマ',
+      query: 'drama',
+      response: '歴史ドラマなら「ザ・クラウン」と「ヴァイキングス」がおすすめです。',
+    },
+    {
+      id: 'corto',
+      label: '短めの作品',
+      query: 'whiplash',
+      response: '「セッション」は短時間で満足できる作品です。',
+    },
+  ],
+  demoPrompt: {
+    label: 'サスペンスドラマが見たい',
+    query: 'suspenso',
+    response: '第一候補は「ストレンジャー・シングス」。謎とノスタルジー、サスペンス満載です。',
+  },
+  fallbackResponse: '了解しました。「{{query}}」の検索結果を表示します。',
+};

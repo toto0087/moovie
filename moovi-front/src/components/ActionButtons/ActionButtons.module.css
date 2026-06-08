@@ -1,0 +1,42 @@
+.row {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.pill {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--color-button-pill);
+  color: white;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pill svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.5;
+}
+
+.pillActive {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.platformGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+}

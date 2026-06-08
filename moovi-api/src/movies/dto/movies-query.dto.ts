@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class MoviesQueryDto {
   @IsOptional()
@@ -13,9 +13,17 @@ export class MoviesQueryDto {
   @IsInt()
   @Min(1)
   @Max(50)
-  limit?: number = 20;
+  limit?: number = 10;
 
   @IsOptional()
   @IsEnum(['novedades', 'recientes', 'populares'])
   tab?: string = 'novedades';
+
+  @IsOptional()
+  @IsEnum(['movie', 'tv'])
+  media_type?: 'movie' | 'tv';
+
+  @IsOptional()
+  @IsString()
+  genre?: string;
 }
