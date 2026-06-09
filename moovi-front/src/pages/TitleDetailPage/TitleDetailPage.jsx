@@ -20,7 +20,7 @@ export function TitleDetailPage() {
 
   return (
     <article className={styles.page}>
-      <DetailHeader title={movie.title} genre={movie.genre} />
+      <DetailHeader title={movie.title} genre={movie.genre} ageRating={movie.ageRating} />
       {movie.poster && (
         <img src={movie.poster} alt={movie.title} className={styles.hero} />
       )}

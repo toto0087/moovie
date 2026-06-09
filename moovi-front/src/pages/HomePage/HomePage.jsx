@@ -13,7 +13,7 @@ import styles from './HomePage.module.css';
 
 export function HomePage({ variant = 'home' }) {
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState('populares');
+  const [activeTab, setActiveTab] = useState('novedades');
   const [activeGenre, setActiveGenre] = useState(null);
   const genres = useGenres();
   const { movies: trending, loading: trendingLoading } = useTrending();

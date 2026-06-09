@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
+import { resolveAgeRating, TmdbClient } from '../sync/tmdb.client';
 import { MovieEntity } from './movie.entity';
 import { MoviesQueryDto } from './dto/movies-query.dto';
 import { FormattedMovie, MoviesLocalizationService } from './movies-localization.service';
 
 const SYNCED_PLATFORMS = ['netflix', 'hbo', 'disney-plus', 'apple-tv'] as const;
-type MixTab = 'trending' | 'popular' | 'recent';
+type MixTab = 'trending' | 'new' | 'added';
 type MixFilters = { media_type?: string; genre?: string; trendingOnly?: boolean };
 
 @Injectable()
@@ -15,6 +16,7 @@ export class MoviesService {
     @InjectRepository(MovieEntity)
     private readonly repo: Repository<MovieEntity>,
     private readonly localization: MoviesLocalizationService,
+    private readonly tmdb: TmdbClient,
   ) {}
 
   async findAll(query: MoviesQueryDto, lang?: string) {
@@ -24,9 +26,15 @@ export class MoviesService {
     const { media_type, genre } = query;
     const skip = (page - 1) * limit;
 
-    const mixTab: MixTab =
-      tab === 'recientes' ? 'recent' : tab === 'populares' ? 'trending' : 'popular';
+    let mixTab: MixTab = 'new';
     const filters: MixFilters = { media_type, genre };
+
+    if (tab === 'populares') {
+      mixTab = 'trending';
+      filters.trendingOnly = true;
+    } else if (tab === 'recientes') {
+      mixTab = 'added';
+    }
 
     const { data, total } = await this.findMixed(mixTab, skip, limit, filters, lang);
     return { data, total, page, limit };
@@ -97,14 +105,23 @@ export class MoviesService {
 
   private sortMovies(movies: MovieEntity[], mixTab: MixTab): MovieEntity[] {
     return [...movies].sort((a, b) => {
-      if (mixTab === 'recent') {
-        const yearDiff = (b.release_year ?? 0) - (a.release_year ?? 0);
-        if (yearDiff !== 0) return yearDiff;
+      if (mixTab === 'added') {
         return b.created_at.getTime() - a.created_at.getTime();
       }
 
-      const trendingDiff = Number(b.trending) - Number(a.trending);
-      if (trendingDiff !== 0) return trendingDiff;
+      if (mixTab === 'new') {
+        const yearDiff = (b.release_year ?? 0) - (a.release_year ?? 0);
+        if (yearDiff !== 0) return yearDiff;
+
+        const trendingDiff = Number(b.trending) - Number(a.trending);
+        if (trendingDiff !== 0) return trendingDiff;
+
+        const rankA = a.popularity_rank ?? 9999;
+        const rankB = b.popularity_rank ?? 9999;
+        if (rankA !== rankB) return rankA - rankB;
+
+        return b.created_at.getTime() - a.created_at.getTime();
+      }
 
       const rankA = a.popularity_rank ?? 9999;
       const rankB = b.popularity_rank ?? 9999;
@@ -128,12 +145,16 @@ export class MoviesService {
       .leftJoinAndSelect('m.platform', 'platform')
       .where('platform.slug = :slug', { slug });
     this.applyMixFilters(qb, filters);
-    const items = await qb
-      .orderBy('m.trending', 'DESC')
-      .addOrderBy('m.release_year', 'DESC')
-      .addOrderBy('m.created_at', 'DESC')
-      .take(Math.max(take * 8, 40))
-      .getMany();
+
+    if (mixTab === 'added') {
+      qb.orderBy('m.created_at', 'DESC');
+    } else if (mixTab === 'new') {
+      qb.orderBy('m.release_year', 'DESC').addOrderBy('m.created_at', 'DESC');
+    } else {
+      qb.orderBy('m.popularity_rank', 'ASC').addOrderBy('m.release_year', 'DESC');
+    }
+
+    const items = await qb.take(Math.max(take * 8, 40)).getMany();
     return this.sortMovies(items, mixTab).slice(0, take);
   }
 
@@ -188,9 +209,32 @@ export class MoviesService {
   }
 
   async findOne(id: number, lang?: string) {
-    const movie = await this.repo.findOne({ where: { id }, relations: { platform: true } });
+    let movie = await this.repo.findOne({ where: { id }, relations: { platform: true } });
     if (!movie) throw new NotFoundException('Título no encontrado');
+    movie = await this.ensureAgeRating(movie);
     return this.localization.localizeOne(this.format(movie), lang);
+  }
+
+  private async ensureAgeRating(movie: MovieEntity): Promise<MovieEntity> {
+    if (movie.age_rating != null || !movie.tmdb_id) return movie;
+
+    try {
+      const mediaType = movie.media_type as 'tv' | 'movie';
+      const [certRaw, details] = await Promise.all([
+        this.tmdb.getContentRating(movie.tmdb_id, mediaType),
+        mediaType === 'tv'
+          ? this.tmdb.getTVDetails(movie.tmdb_id)
+          : this.tmdb.getMovieDetails(movie.tmdb_id),
+      ]);
+
+      const ageRating = resolveAgeRating(certRaw, mediaType, details);
+      if (ageRating == null) return movie;
+
+      movie.age_rating = ageRating;
+      return this.repo.save(movie);
+    } catch {
+      return movie;
+    }
   }
 
   format(m: MovieEntity): FormattedMovie {

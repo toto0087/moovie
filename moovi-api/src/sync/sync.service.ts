@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MovieEntity } from '../movies/movie.entity';
 import { PlatformEntity } from '../platforms/platform.entity';
-import { TmdbClient, certToAgeRating, toSlug } from './tmdb.client';
+import { TmdbClient, resolveAgeRating, toSlug } from './tmdb.client';
 
 @Injectable()
 export class SyncService {
@@ -71,9 +71,7 @@ export class SyncService {
 
       const [details, certRaw] = await Promise.all([
         mediaType === 'tv' ? this.tmdb.getTVDetails(tmdbId) : this.tmdb.getMovieDetails(tmdbId),
-        mediaType === 'tv'
-          ? this.tmdb.getTVContentRating(tmdbId, country)
-          : this.tmdb.getMovieContentRating(tmdbId, country),
+        this.tmdb.getContentRating(tmdbId, mediaType, country),
       ]);
 
       const title: string = details.name ?? details.title ?? 'Sin título';
@@ -86,7 +84,7 @@ export class SyncService {
           ? details.runtime ?? null
           : details.episode_run_time?.[0] ?? null;
       const releaseYear: number | null = parseYear(details.first_air_date ?? details.release_date);
-      const ageRating = certToAgeRating(certRaw);
+      const ageRating = resolveAgeRating(certRaw, mediaType, details);
 
       const rankInTrending = trendingIds.get(tmdbId);
       const trending = !!rankInTrending;

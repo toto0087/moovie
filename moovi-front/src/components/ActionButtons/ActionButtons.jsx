@@ -9,7 +9,6 @@ export function ActionButtons({ movieId, ageRating, platforms = [] }) {
   const { t } = useI18n();
   const { isInList, toggleInList } = useMyList();
   const inList = isInList(movieId);
-  const ageLabel = formatAgeRating(ageRating);
 
   return (
     <div className={styles.row}>
@@ -22,8 +21,8 @@ export function ActionButtons({ movieId, ageRating, platforms = [] }) {
         </span>
       </button>
       {hasAgeRating(ageRating) && (
-        <button type="button" className={styles.pill}>
-          {ageLabel}
+        <button type="button" className={styles.pill} aria-label={`Clasificación ${formatAgeRating(ageRating)}`}>
+          {formatAgeRating(ageRating)}
         </button>
       )}
       <button

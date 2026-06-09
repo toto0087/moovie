@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { FiChevronLeft } from 'react-icons/fi';
+import { AgeBadge } from '../AgeBadge/AgeBadge';
 import { Logo } from '../Logo/Logo';
 import styles from './DetailHeader.module.css';
 
-export function DetailHeader({ title, genre }) {
+export function DetailHeader({ title, genre, ageRating }) {
   const navigate = useNavigate();
 
   return (
@@ -17,7 +18,10 @@ export function DetailHeader({ title, genre }) {
         </button>
         <div className={styles.info}>
           <h1 className={styles.title}>{title}</h1>
-          <p className={styles.genre}>{genre}</p>
+          <div className={styles.meta}>
+            {genre ? <p className={styles.genre}>{genre}</p> : null}
+            <AgeBadge age={ageRating} size="md" className={styles.ageBadge} />
+          </div>
         </div>
       </div>
     </header>
