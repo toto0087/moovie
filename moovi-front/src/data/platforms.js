@@ -73,8 +73,8 @@ export const DEFAULT_PLATFORMS = {
   'apple-tv': true,
 };
 
-export function normalizePlatforms(stored = {}) {
-  return ALL_PLATFORM_IDS.reduce((acc, id) => {
+export function normalizePlatforms(stored = {}, platformIds = ALL_PLATFORM_IDS) {
+  return platformIds.reduce((acc, id) => {
     acc[id] =
       stored[id] !== undefined ? Boolean(stored[id]) : Boolean(DEFAULT_PLATFORMS[id]);
     return acc;
@@ -87,7 +87,8 @@ export function buildPlatformMetaFromApi(platforms) {
       short: p.short_name,
       label: p.name,
       logo: p.logo_url ?? platformMeta[p.slug]?.logo ?? null,
+      color: p.color ?? null,
     };
     return acc;
-  }, { ...platformMeta });
+  }, {});
 }

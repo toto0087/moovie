@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { platformMeta } from '../../data/platforms';
+import { usePlatforms } from '../../context/PlatformsContext';
 
-export function hasPlatformLogo(slug) {
-  return Boolean(platformMeta[slug]?.logo);
+export function hasPlatformLogo(slug, platformMeta) {
+  return Boolean(platformMeta?.[slug]?.logo);
 }
 
 export function PlatformLogo({ slug, logoUrl, className, imageClassName, onError }) {
+  const { platformMeta } = usePlatforms();
   const platform = platformMeta[slug];
   const src = logoUrl ?? platform?.logo;
   const [failed, setFailed] = useState(false);

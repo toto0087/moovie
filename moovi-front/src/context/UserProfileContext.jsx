@@ -1,23 +1,24 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
-import { ALL_PLATFORM_IDS, DEFAULT_PLATFORMS, normalizePlatforms } from '../data/platforms';
+import { DEFAULT_PLATFORMS, normalizePlatforms } from '../data/platforms';
 import { useAuth } from './AuthContext';
+import { usePlatforms } from './PlatformsContext';
 
 const PLATFORMS_KEY = 'moovi-platform-prefs';
 
-function readPlatformPrefs() {
+function readPlatformPrefs(platformIds) {
   try {
     const raw = localStorage.getItem(PLATFORMS_KEY);
-    if (!raw) return normalizePlatforms();
+    if (!raw) return normalizePlatforms({}, platformIds);
     const stored = JSON.parse(raw);
-    const normalized = normalizePlatforms(stored);
-    const migrated = ALL_PLATFORM_IDS.some(
+    const normalized = normalizePlatforms(stored, platformIds);
+    const migrated = platformIds.some(
       (id) => stored[id] === undefined && DEFAULT_PLATFORMS[id],
     );
     if (migrated) writePlatformPrefs(normalized);
     return normalized;
   } catch {
-    return normalizePlatforms();
+    return normalizePlatforms({}, platformIds);
   }
 }
 
@@ -29,8 +30,17 @@ const UserProfileContext = createContext(null);
 
 export function UserProfileProvider({ children }) {
   const { user, isAuthenticated, refreshUser } = useAuth();
-  const [platforms, setPlatforms] = useState(readPlatformPrefs);
+  const { allPlatformIds } = usePlatforms();
+  const [platforms, setPlatforms] = useState(() => readPlatformPrefs(allPlatformIds));
   const [fullProfile, setFullProfile] = useState(null);
+
+  useEffect(() => {
+    setPlatforms((prev) => {
+      const next = normalizePlatforms(prev, allPlatformIds);
+      writePlatformPrefs(next);
+      return next;
+    });
+  }, [allPlatformIds]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -78,14 +88,17 @@ export function UserProfileProvider({ children }) {
     [refreshUser]
   );
 
-  const setPlatform = useCallback((platformId, enabled) => {
-    if (!ALL_PLATFORM_IDS.includes(platformId)) return;
-    setPlatforms((prev) => {
-      const next = normalizePlatforms({ ...prev, [platformId]: enabled });
-      writePlatformPrefs(next);
-      return next;
-    });
-  }, []);
+  const setPlatform = useCallback(
+    (platformId, enabled) => {
+      if (!allPlatformIds.includes(platformId)) return;
+      setPlatforms((prev) => {
+        const next = normalizePlatforms({ ...prev, [platformId]: enabled }, allPlatformIds);
+        writePlatformPrefs(next);
+        return next;
+      });
+    },
+    [allPlatformIds]
+  );
 
   const activePlatforms = useMemo(
     () => Object.entries(platforms).filter(([, on]) => on).map(([id]) => id),

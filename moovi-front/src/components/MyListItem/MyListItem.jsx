@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AgeBadge } from '../AgeBadge/AgeBadge';
 import { PopularityTrendIcon } from '../PopularityTrendIcon/PopularityTrendIcon';
-import { platformMeta } from '../../data/platforms';
+import { usePlatforms } from '../../context/PlatformsContext';
 import styles from './MyListItem.module.css';
 
 const platformClass = {
@@ -19,6 +19,7 @@ const platformClass = {
 };
 
 export function MyListItem({ movie }) {
+  const { platformMeta } = usePlatforms();
   const platform = platformMeta[movie.platform];
 
   return (

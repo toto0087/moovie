@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FiBookmark, FiInfo, FiMessageCircle, FiPlus } from 'react-icons/fi';
 import { FlameIcon } from '../icons/FlameIcon';
-import { platformMeta } from '../../data/platforms';
+import { usePlatforms } from '../../context/PlatformsContext';
 import { useI18n } from '../../context/I18nContext';
 import styles from './NotificationItem.module.css';
 
@@ -16,6 +16,7 @@ const typeIcons = {
 
 export function NotificationItem({ notification, onRead }) {
   const { t } = useI18n();
+  const { platformMeta } = usePlatforms();
   const { id, type, title, message, timeLabel, movie, unread } = notification;
   const Icon = typeIcons[type] ?? FiInfo;
   const isFlame = type === 'trending';

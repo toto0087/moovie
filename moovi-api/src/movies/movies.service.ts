@@ -5,8 +5,9 @@ import { resolveAgeRating, TmdbClient } from '../sync/tmdb.client';
 import { MovieEntity } from './movie.entity';
 import { MoviesQueryDto } from './dto/movies-query.dto';
 import { FormattedMovie, MoviesLocalizationService } from './movies-localization.service';
+import { SYNCED_PLATFORM_SLUGS } from '../platforms/platform-seeds';
 
-const SYNCED_PLATFORMS = ['netflix', 'hbo', 'disney-plus', 'apple-tv'] as const;
+const SYNCED_PLATFORMS = SYNCED_PLATFORM_SLUGS;
 type MixTab = 'trending' | 'new' | 'added';
 type MixFilters = { media_type?: string; genre?: string; trendingOnly?: boolean };
 

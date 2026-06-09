@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MovieEntity } from '../movies/movie.entity';
 import { PlatformEntity } from '../platforms/platform.entity';
+import { DISCOVER_PROVIDERS } from '../platforms/platform-seeds';
 import { TmdbClient, resolveAgeRating, toSlug } from './tmdb.client';
 
 @Injectable()
@@ -148,30 +149,34 @@ export class SyncService {
     ]);
     const tvPages = await Promise.all([1, 2, 3, 4, 5].map((p) => this.tmdb.getPopularTV(p)));
     const moviePages = await Promise.all([1, 2, 3].map((p) => this.tmdb.getPopularMovies(p)));
-    const appleTvTv = await Promise.all(
-      [1, 2, 3, 4, 5].map((p) => this.tmdb.discoverByProvider(350, 'tv', p, country)),
-    );
-    const appleTvMovies = await Promise.all(
-      [1, 2, 3].map((p) => this.tmdb.discoverByProvider(350, 'movie', p, country)),
-    );
-    const hboTv = await Promise.all(
-      [1, 2, 3, 4, 5].map((p) => this.tmdb.discoverByProvider(1899, 'tv', p, country)),
-    );
-    const hboMovies = await Promise.all(
-      [1, 2, 3].map((p) => this.tmdb.discoverByProvider(1899, 'movie', p, country)),
-    );
 
     const tag = (items: any[], mediaType: 'tv' | 'movie', platformSlug: string) =>
       items.map((i) => ({ ...i, media_type: mediaType, _platformSlug: platformSlug }));
+
+    const discoverBatches = await Promise.all(
+      DISCOVER_PROVIDERS.map(async ({ slug, providerId, tvPages, moviePages }) => {
+        const tv = await Promise.all(
+          Array.from({ length: tvPages }, (_, i) =>
+            this.tmdb.discoverByProvider(providerId, 'tv', i + 1, country),
+          ),
+        );
+        const movies = await Promise.all(
+          Array.from({ length: moviePages }, (_, i) =>
+            this.tmdb.discoverByProvider(providerId, 'movie', i + 1, country),
+          ),
+        );
+        return [
+          ...tag(tv.flat(), 'tv', slug),
+          ...tag(movies.flat(), 'movie', slug),
+        ];
+      }),
+    );
 
     const all = [
       ...[...t1, ...t2, ...t3].map((i) => ({ ...i, media_type: i.media_type ?? 'tv' })),
       ...tvPages.flat().map((i) => ({ ...i, media_type: 'tv' })),
       ...moviePages.flat().map((i) => ({ ...i, media_type: 'movie' })),
-      ...tag(appleTvTv.flat(), 'tv', 'apple-tv'),
-      ...tag(appleTvMovies.flat(), 'movie', 'apple-tv'),
-      ...tag(hboTv.flat(), 'tv', 'hbo'),
-      ...tag(hboMovies.flat(), 'movie', 'hbo'),
+      ...discoverBatches.flat(),
     ];
     return dedup(all);
   }

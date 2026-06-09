@@ -6,13 +6,14 @@ import { SettingsRow } from '../../components/SettingsRow/SettingsRow';
 import { SettingsToggle } from '../../components/SettingsToggle/SettingsToggle';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { ALL_PLATFORM_IDS, platformMeta } from '../../data/platforms';
+import { usePlatforms } from '../../context/PlatformsContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useI18n } from '../../context/I18nContext';
 import styles from './AccountPage.module.css';
 
 export function AccountPage() {
   const { t } = useI18n();
+  const { platformMeta, allPlatformIds } = usePlatforms();
   const { profile, updateProfile, setPlatform } = useUserProfile();
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
@@ -31,10 +32,10 @@ export function AccountPage() {
   const isPremium = profile.plan === 'premium';
 
   const { enabledPlatformIds, availablePlatformIds } = useMemo(() => {
-    const enabled = ALL_PLATFORM_IDS.filter((id) => profile.platforms[id]);
-    const available = ALL_PLATFORM_IDS.filter((id) => !profile.platforms[id]);
+    const enabled = allPlatformIds.filter((id) => profile.platforms[id]);
+    const available = allPlatformIds.filter((id) => !profile.platforms[id]);
     return { enabledPlatformIds: enabled, availablePlatformIds: available };
-  }, [profile.platforms]);
+  }, [profile.platforms, allPlatformIds]);
   const planBenefits = useMemo(
     () => [
       t('account.benefit1'),

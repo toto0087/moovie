@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { platformMeta } from '../../data/platforms';
+import { usePlatforms } from '../../context/PlatformsContext';
 import { PlatformLogo } from '../icons/PlatformLogo';
 import styles from './PlatformBadge.module.css';
 
@@ -18,6 +18,7 @@ const platformClass = {
 };
 
 export function PlatformBadge({ platformId, logoUrl, size = 'md' }) {
+  const { platformMeta } = usePlatforms();
   const platform = platformMeta[platformId];
   const [logoFailed, setLogoFailed] = useState(false);
 

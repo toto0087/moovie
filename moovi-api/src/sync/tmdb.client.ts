@@ -8,14 +8,21 @@ const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 // TMDB provider_id → our platform slug
 export const PROVIDER_MAP: Record<number, string> = {
   8: 'netflix',
+  11: 'mubi',
+  119: 'amazon-prime',
+  167: 'clarovideo',
+  283: 'crunchyroll',
+  300: 'pluto-tv',
   337: 'disney-plus',
-  350: 'apple-tv', // Apple TV+ (AR and most regions)
-  384: 'hbo', // HBO Max (legacy ID, some regions)
-  1899: 'hbo', // HBO Max (AR / LatAm)
-  1870: 'hbo', // Max (US)
+  350: 'apple-tv',
+  384: 'hbo',
+  531: 'paramount-plus',
+  619: 'star-plus',
+  1870: 'hbo',
+  1899: 'hbo',
 };
 
-export const SUPPORTED_PROVIDERS = new Set([8, 337, 350, 384, 1899, 1870]);
+export const SUPPORTED_PROVIDERS = new Set(Object.keys(PROVIDER_MAP).map(Number));
 
 @Injectable()
 export class TmdbClient {

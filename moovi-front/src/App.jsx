@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { MyListProvider } from './context/MyListContext';
 import { NotificationsProvider } from './context/NotificationsContext';
+import { PlatformsProvider } from './context/PlatformsContext';
 import { UserProfileProvider } from './context/UserProfileContext';
 import { AppSettingsProvider } from './context/AppSettingsContext';
 import { I18nProvider } from './context/I18nContext';
@@ -27,6 +28,7 @@ export default function App() {
       <AuthProvider>
         <AppSettingsProvider>
         <I18nProvider>
+        <PlatformsProvider>
         <UserProfileProvider>
         <MyListProvider>
         <NotificationsProvider>
@@ -56,6 +58,7 @@ export default function App() {
         </NotificationsProvider>
         </MyListProvider>
         </UserProfileProvider>
+        </PlatformsProvider>
         </I18nProvider>
         </AppSettingsProvider>
       </AuthProvider>
