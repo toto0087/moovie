@@ -17,6 +17,8 @@ import {
 } from './searchAgent';
 import styles from './SearchPage.module.css';
 
+const AGENT_REPLY_DELAY_MS = 3000;
+
 export function SearchPage() {
   const { t, language } = useI18n();
   const { settings } = useAppSettings();
@@ -98,7 +100,7 @@ export function SearchPage() {
       timersRef.current.push(
         setTimeout(() => setTranscript(label), 700),
         setTimeout(() => setAgentStatus('thinking'), 1600),
-        setTimeout(() => finishAgentTurn(prompt), 2800)
+        setTimeout(() => finishAgentTurn(prompt), 1600 + AGENT_REPLY_DELAY_MS)
       );
     },
     [agentOpen, clearTimers, finishAgentTurn]
@@ -126,7 +128,7 @@ export function SearchPage() {
       timersRef.current.push(
         setTimeout(
           () => finishAgentTurn({ label: reply.label, response: reply.response, query: reply.query }),
-          900
+          AGENT_REPLY_DELAY_MS
         )
       );
     },
@@ -137,7 +139,7 @@ export function SearchPage() {
     (item) => {
       clearTimers();
       setAgentStatus('thinking');
-      timersRef.current.push(setTimeout(() => finishAgentTurn(item), 700));
+      timersRef.current.push(setTimeout(() => finishAgentTurn(item), AGENT_REPLY_DELAY_MS));
     },
     [clearTimers, finishAgentTurn]
   );
@@ -171,12 +173,14 @@ export function SearchPage() {
         />
 
         {genres.length > 0 && (
-          <GenreFilter
-            genres={genres}
-            activeGenre={activeGenre}
-            onSelect={setActiveGenre}
-            allLabel="Todo"
-          />
+          <div className={styles.genreFilter}>
+            <GenreFilter
+              genres={genres}
+              activeGenre={activeGenre}
+              onSelect={setActiveGenre}
+              allLabel="Todo"
+            />
+          </div>
         )}
 
         {!search.trim() && !activeGenre && settings.saveSearchHistory && recentSearches.length > 0 && (

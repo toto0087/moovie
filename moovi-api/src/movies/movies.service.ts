@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { MovieEntity } from './movie.entity';
 import { MoviesQueryDto } from './dto/movies-query.dto';
 import { FormattedMovie, MoviesLocalizationService } from './movies-localization.service';
+
+const SYNCED_PLATFORMS = ['netflix', 'hbo', 'disney-plus', 'apple-tv'] as const;
+type MixTab = 'trending' | 'popular' | 'recent';
+type MixFilters = { media_type?: string; genre?: string; trendingOnly?: boolean };
 
 @Injectable()
 export class MoviesService {
@@ -20,30 +24,12 @@ export class MoviesService {
     const { media_type, genre } = query;
     const skip = (page - 1) * limit;
 
-    const qb = this.repo.createQueryBuilder('m')
-      .leftJoinAndSelect('m.platform', 'platform');
+    const mixTab: MixTab =
+      tab === 'recientes' ? 'recent' : tab === 'populares' ? 'trending' : 'popular';
+    const filters: MixFilters = { media_type, genre };
 
-    if (media_type) {
-      qb.andWhere('m.media_type = :media_type', { media_type });
-    }
-
-    if (genre) {
-      qb.andWhere('JSON_CONTAINS(m.genres, :genre)', { genre: JSON.stringify(genre) });
-    }
-
-    if (tab === 'populares') {
-      qb.andWhere('m.trending = :t', { t: true })
-        .orderBy('m.popularity_rank', 'ASC');
-    } else if (tab === 'recientes') {
-      qb.orderBy('m.release_year', 'DESC')
-        .addOrderBy('m.created_at', 'DESC');
-    } else {
-      qb.orderBy('m.created_at', 'DESC');
-    }
-
-    const [data, total] = await qb.skip(skip).take(limit).getManyAndCount();
-    const movies = await this.localization.localizeMany(data.map((m) => this.format(m)), lang);
-    return { data: movies, total, page, limit };
+    const { data, total } = await this.findMixed(mixTab, skip, limit, filters, lang);
+    return { data, total, page, limit };
   }
 
   async getGenres(): Promise<string[]> {
@@ -71,13 +57,104 @@ export class MoviesService {
   }
 
   async findTrending(lang?: string) {
-    const items = await this.repo.find({
-      where: { trending: true },
-      relations: { platform: true },
-      order: { popularity_rank: 'ASC' },
-      take: 20,
+    const { data } = await this.findMixed('trending', 0, 20, { trendingOnly: true }, lang);
+    return data;
+  }
+
+  private async findMixed(
+    mixTab: MixTab,
+    skip: number,
+    take: number,
+    filters: MixFilters,
+    lang?: string,
+  ): Promise<{ data: FormattedMovie[]; total: number }> {
+    const perPlatform = Math.ceil((skip + take) / SYNCED_PLATFORMS.length) + 1;
+    const lists = await Promise.all(
+      SYNCED_PLATFORMS.map((slug) => this.fetchPerPlatform(slug, perPlatform, mixTab, filters)),
+    );
+    const merged = this.interleaveMovies(lists);
+    const data = merged.slice(skip, skip + take);
+    const counts = await Promise.all(
+      SYNCED_PLATFORMS.map((slug) => this.countPerPlatform(slug, filters)),
+    );
+    const total = counts.reduce((sum, count) => sum + count, 0);
+    const movies = await this.localization.localizeMany(data.map((m) => this.format(m)), lang);
+    return { data: movies, total };
+  }
+
+  private applyMixFilters(qb: SelectQueryBuilder<MovieEntity>, filters: MixFilters) {
+    if (filters.media_type) {
+      qb.andWhere('m.media_type = :media_type', { media_type: filters.media_type });
+    }
+    if (filters.genre) {
+      qb.andWhere('JSON_CONTAINS(m.genres, :genre)', { genre: JSON.stringify(filters.genre) });
+    }
+    if (filters.trendingOnly) {
+      qb.andWhere('m.trending = :trending', { trending: true });
+    }
+    return qb;
+  }
+
+  private sortMovies(movies: MovieEntity[], mixTab: MixTab): MovieEntity[] {
+    return [...movies].sort((a, b) => {
+      if (mixTab === 'recent') {
+        const yearDiff = (b.release_year ?? 0) - (a.release_year ?? 0);
+        if (yearDiff !== 0) return yearDiff;
+        return b.created_at.getTime() - a.created_at.getTime();
+      }
+
+      const trendingDiff = Number(b.trending) - Number(a.trending);
+      if (trendingDiff !== 0) return trendingDiff;
+
+      const rankA = a.popularity_rank ?? 9999;
+      const rankB = b.popularity_rank ?? 9999;
+      if (rankA !== rankB) return rankA - rankB;
+
+      const yearDiff = (b.release_year ?? 0) - (a.release_year ?? 0);
+      if (yearDiff !== 0) return yearDiff;
+
+      return b.created_at.getTime() - a.created_at.getTime();
     });
-    return this.localization.localizeMany(items.map((m) => this.format(m)), lang);
+  }
+
+  private async fetchPerPlatform(
+    slug: string,
+    take: number,
+    mixTab: MixTab,
+    filters: MixFilters,
+  ): Promise<MovieEntity[]> {
+    const qb = this.repo
+      .createQueryBuilder('m')
+      .leftJoinAndSelect('m.platform', 'platform')
+      .where('platform.slug = :slug', { slug });
+    this.applyMixFilters(qb, filters);
+    const items = await qb
+      .orderBy('m.trending', 'DESC')
+      .addOrderBy('m.release_year', 'DESC')
+      .addOrderBy('m.created_at', 'DESC')
+      .take(Math.max(take * 8, 40))
+      .getMany();
+    return this.sortMovies(items, mixTab).slice(0, take);
+  }
+
+  private countPerPlatform(slug: string, filters: MixFilters): Promise<number> {
+    const qb = this.repo
+      .createQueryBuilder('m')
+      .leftJoin('m.platform', 'platform')
+      .where('platform.slug = :slug', { slug });
+    this.applyMixFilters(qb, filters);
+    return qb.getCount();
+  }
+
+  private interleaveMovies(platformMovies: MovieEntity[][]): MovieEntity[] {
+    const maxLen = Math.max(0, ...platformMovies.map((list) => list.length));
+    const merged: MovieEntity[] = [];
+    for (let i = 0; i < maxLen; i++) {
+      for (const list of platformMovies) {
+        if (list[i]) merged.push(list[i]);
+      }
+    }
+    return merged;
   }
 
   async search(q: string, lang?: string) {
@@ -127,7 +204,14 @@ export class MoviesService {
       backdrop_url: m.backdrop_url,
       age_rating: m.age_rating,
       platform: m.platform
-        ? { id: m.platform.id, slug: m.platform.slug, name: m.platform.name, short_name: m.platform.short_name, color: m.platform.color }
+        ? {
+            id: m.platform.id,
+            slug: m.platform.slug,
+            name: m.platform.name,
+            short_name: m.platform.short_name,
+            color: m.platform.color,
+            logo_url: m.platform.logo_url,
+          }
         : null,
       trending: m.trending,
       badge: m.badge,

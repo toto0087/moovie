@@ -19,7 +19,7 @@ export function HelpPage() {
   const quickLinks = useMemo(
     () => [
       { label: t('help.linkAgent'), to: '/buscar' },
-      { label: t('help.linkTrending'), to: '/tendencia' },
+      { label: t('help.linkTrending'), to: '/novedades' },
       { label: t('help.linkList'), to: '/mi-lista' },
       { label: t('help.linkNotifications'), to: '/notificaciones' },
     ],

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import api from '../services/api';
 import { useI18n } from '../context/I18nContext';
 import { mapMovies } from '../utils/mapMovie';
@@ -72,9 +72,9 @@ export function useMoviesTab(tab = 'novedades', mediaType = null, genre = null) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterKey, page]);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (!loadingMore && hasMore) setPage((p) => p + 1);
-  };
+  }, [loadingMore, hasMore]);
 
   return { movies, loading, loadingMore, error, hasMore, loadMore };
 }

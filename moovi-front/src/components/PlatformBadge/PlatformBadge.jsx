@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { platformMeta } from '../../data/platforms';
+import { PlatformLogo } from '../icons/PlatformLogo';
 import styles from './PlatformBadge.module.css';
 
 const platformClass = {
@@ -15,16 +17,32 @@ const platformClass = {
   clarovideo: styles.clarovideo,
 };
 
-export function PlatformBadge({ platformId, size = 'md' }) {
+export function PlatformBadge({ platformId, logoUrl, size = 'md' }) {
   const platform = platformMeta[platformId];
+  const [logoFailed, setLogoFailed] = useState(false);
+
   if (!platform) return null;
+
+  const resolvedLogo = logoUrl ?? platform.logo;
+  const showLogo = Boolean(resolvedLogo) && !logoFailed;
 
   return (
     <span
-      className={`${styles.badge} ${styles[size]} ${platformClass[platformId] ?? ''}`}
+      className={`${styles.badge} ${styles[size]} ${platformClass[platformId] ?? ''} ${
+        showLogo ? styles.hasImageLogo : ''
+      }`}
       aria-label={platform.label}
     >
-      {platform.short}
+      {showLogo ? (
+        <PlatformLogo
+          slug={platformId}
+          logoUrl={resolvedLogo}
+          imageClassName={styles.logoImage}
+          onError={() => setLogoFailed(true)}
+        />
+      ) : (
+        platform.short
+      )}
     </span>
   );
 }

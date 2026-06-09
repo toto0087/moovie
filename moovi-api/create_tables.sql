@@ -63,7 +63,8 @@ CREATE TABLE IF NOT EXISTS user_lists (
   CONSTRAINT fk_list_movie FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
 );
 
-INSERT IGNORE INTO platforms (slug, name, short_name, color) VALUES
-  ('netflix',     'Netflix',  'N',   '#E50914'),
-  ('hbo',         'HBO Max',  'HBO', '#5822B4'),
-  ('disney-plus', 'Disney+',  'D+',  '#0063E5');
+INSERT IGNORE INTO platforms (slug, name, short_name, color, logo_url) VALUES
+  ('netflix',     'Netflix',    'N',   '#E50914', 'https://image.tmdb.org/t/p/w92/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg'),
+  ('hbo',         'HBO Max',    'HBO', '#5822B4', 'https://image.tmdb.org/t/p/w92/jbe4gVSfRlbPTdESXhEKpornsfu.jpg'),
+  ('disney-plus', 'Disney+',    'D+',  '#0063E5', 'https://image.tmdb.org/t/p/w92/97yvRBw1GzX7fXprcF80er19ot.jpg'),
+  ('apple-tv',    'Apple TV+',  'TV+', '#1D1D1F', 'https://image.tmdb.org/t/p/w92/mcbz1LgtErU9p4UdbZ0rG6RTWHX.jpg');

@@ -8,10 +8,16 @@ const PLATFORMS_KEY = 'moovi-platform-prefs';
 function readPlatformPrefs() {
   try {
     const raw = localStorage.getItem(PLATFORMS_KEY);
-    if (!raw) return { ...DEFAULT_PLATFORMS };
-    return normalizePlatforms(JSON.parse(raw));
+    if (!raw) return normalizePlatforms();
+    const stored = JSON.parse(raw);
+    const normalized = normalizePlatforms(stored);
+    const migrated = ALL_PLATFORM_IDS.some(
+      (id) => stored[id] === undefined && DEFAULT_PLATFORMS[id],
+    );
+    if (migrated) writePlatformPrefs(normalized);
+    return normalized;
   } catch {
-    return { ...DEFAULT_PLATFORMS };
+    return normalizePlatforms();
   }
 }
 

@@ -11,7 +11,6 @@ import { AppLayout } from './components/Layout/AppLayout';
 import { LandingGate } from './pages/LandingPage/LandingGate';
 import { HomePage } from './pages/HomePage/HomePage';
 import { SearchPage } from './pages/SearchPage/SearchPage';
-import { FavoritesPage } from './pages/FavoritesPage/FavoritesPage';
 import { MyListPage } from './pages/MyListPage/MyListPage';
 import { ProfilePage } from './pages/ProfilePage/ProfilePage';
 import { NotificationsPage } from './pages/NotificationsPage/NotificationsPage';
@@ -41,8 +40,8 @@ export default function App() {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/buscar" element={<SearchPage />} />
                 <Route path="/novedades" element={<HomePage variant="tabs" />} />
-                <Route path="/favoritos" element={<Navigate to="/tendencia" replace />} />
-                <Route path="/tendencia" element={<FavoritesPage />} />
+                <Route path="/favoritos" element={<Navigate to="/novedades" replace />} />
+                <Route path="/tendencia" element={<Navigate to="/novedades" replace />} />
                 <Route path="/mi-lista" element={<MyListPage />} />
                 <Route path="/perfil" element={<ProfilePage />} />
                 <Route path="/notificaciones" element={<NotificationsPage />} />

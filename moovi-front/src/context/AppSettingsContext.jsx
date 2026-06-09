@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { LANGUAGE_CODES } from '../i18n/languages';
+import { detectDeviceLanguage, LANGUAGE_CODES } from '../i18n/languages';
 
 const STORAGE_KEY = 'moovi-app-settings';
 
@@ -20,12 +20,15 @@ export const DEFAULT_SETTINGS = {
 function readSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_SETTINGS;
-    const parsed = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
-    parsed.language = normalizeLanguage(parsed.language);
-    return parsed;
+    if (!raw) {
+      return { ...DEFAULT_SETTINGS, language: detectDeviceLanguage() };
+    }
+    const parsed = JSON.parse(raw);
+    const language =
+      parsed.language != null ? normalizeLanguage(parsed.language) : detectDeviceLanguage();
+    return { ...DEFAULT_SETTINGS, ...parsed, language };
   } catch {
-    return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, language: detectDeviceLanguage() };
   }
 }
 

@@ -21,7 +21,7 @@ export class SyncService {
     this.logger.log('Starting TMDB sync...');
 
     const platformMap = await this.buildPlatformMap();
-    const rawItems = await this.fetchAllItems();
+    const rawItems = await this.fetchAllItems(country);
     this.logger.log(`Fetched ${rawItems.length} unique items from TMDB`);
 
     // Build trending set with rank
@@ -52,9 +52,12 @@ export class SyncService {
   ) {
     const mediaType: 'tv' | 'movie' = item.media_type === 'movie' ? 'movie' : 'tv';
     const tmdbId: number = item.id;
+    const forcedSlug: string | undefined = item._platformSlug;
 
     try {
-      const provider = await this.tmdb.getWatchProviders(tmdbId, mediaType, country);
+      const provider = forcedSlug
+        ? { slug: forcedSlug, providerId: 0 }
+        : await this.tmdb.getWatchProviders(tmdbId, mediaType, country);
       if (!provider) {
         stats.skipped++;
         return;
@@ -139,7 +142,7 @@ export class SyncService {
     return dedup(pages.flat());
   }
 
-  private async fetchAllItems(): Promise<any[]> {
+  private async fetchAllItems(country = 'AR'): Promise<any[]> {
     const [t1, t2, t3] = await Promise.all([
       this.tmdb.getTrending(1),
       this.tmdb.getTrending(2),
@@ -147,11 +150,30 @@ export class SyncService {
     ]);
     const tvPages = await Promise.all([1, 2, 3, 4, 5].map((p) => this.tmdb.getPopularTV(p)));
     const moviePages = await Promise.all([1, 2, 3].map((p) => this.tmdb.getPopularMovies(p)));
+    const appleTvTv = await Promise.all(
+      [1, 2, 3, 4, 5].map((p) => this.tmdb.discoverByProvider(350, 'tv', p, country)),
+    );
+    const appleTvMovies = await Promise.all(
+      [1, 2, 3].map((p) => this.tmdb.discoverByProvider(350, 'movie', p, country)),
+    );
+    const hboTv = await Promise.all(
+      [1, 2, 3, 4, 5].map((p) => this.tmdb.discoverByProvider(1899, 'tv', p, country)),
+    );
+    const hboMovies = await Promise.all(
+      [1, 2, 3].map((p) => this.tmdb.discoverByProvider(1899, 'movie', p, country)),
+    );
+
+    const tag = (items: any[], mediaType: 'tv' | 'movie', platformSlug: string) =>
+      items.map((i) => ({ ...i, media_type: mediaType, _platformSlug: platformSlug }));
 
     const all = [
       ...[...t1, ...t2, ...t3].map((i) => ({ ...i, media_type: i.media_type ?? 'tv' })),
       ...tvPages.flat().map((i) => ({ ...i, media_type: 'tv' })),
       ...moviePages.flat().map((i) => ({ ...i, media_type: 'movie' })),
+      ...tag(appleTvTv.flat(), 'tv', 'apple-tv'),
+      ...tag(appleTvMovies.flat(), 'movie', 'apple-tv'),
+      ...tag(hboTv.flat(), 'tv', 'hbo'),
+      ...tag(hboMovies.flat(), 'movie', 'hbo'),
     ];
     return dedup(all);
   }

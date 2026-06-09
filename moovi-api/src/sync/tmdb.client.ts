@@ -8,14 +8,14 @@ const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 // TMDB provider_id → our platform slug
 export const PROVIDER_MAP: Record<number, string> = {
   8: 'netflix',
-  384: 'hbo',
   337: 'disney-plus',
-  // Additional known IDs for the same services in some regions
-  1870: 'hbo',  // Max (US rebranded)
-  2: 'disney-plus', // Apple TV+ -- skip, but included to avoid silent fails
+  350: 'apple-tv', // Apple TV+ (AR and most regions)
+  384: 'hbo', // HBO Max (legacy ID, some regions)
+  1899: 'hbo', // HBO Max (AR / LatAm)
+  1870: 'hbo', // Max (US)
 };
 
-export const SUPPORTED_PROVIDERS = new Set([8, 384, 337, 1870]);
+export const SUPPORTED_PROVIDERS = new Set([8, 337, 350, 384, 1899, 1870]);
 
 @Injectable()
 export class TmdbClient {
@@ -50,6 +50,22 @@ export class TmdbClient {
 
   async getPopularMovies(page = 1): Promise<any[]> {
     const data = await this.get<any>('/movie/popular', { page, language: 'es-AR' });
+    return data.results ?? [];
+  }
+
+  async discoverByProvider(
+    providerId: number,
+    mediaType: 'tv' | 'movie',
+    page = 1,
+    country = 'AR',
+  ): Promise<any[]> {
+    const data = await this.get<any>(`/discover/${mediaType}`, {
+      page,
+      language: 'es-AR',
+      watch_region: country,
+      with_watch_providers: String(providerId),
+      sort_by: 'popularity.desc',
+    });
     return data.results ?? [];
   }
 

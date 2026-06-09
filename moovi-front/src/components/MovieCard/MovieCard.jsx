@@ -1,22 +1,8 @@
 import { Link } from 'react-router-dom';
 import { AgeBadge } from '../AgeBadge/AgeBadge';
+import { PlatformBadge } from '../PlatformBadge/PlatformBadge';
 import { PopularityTrendIcon } from '../PopularityTrendIcon/PopularityTrendIcon';
-import { platformMeta } from '../../data/platforms';
 import styles from './MovieCard.module.css';
-
-const platformClass = {
-  netflix: styles.netflix,
-  hbo: styles.hbo,
-  'disney-plus': styles.disneyPlus,
-  'amazon-prime': styles.amazonPrime,
-  'apple-tv': styles.appleTv,
-  'paramount-plus': styles.paramountPlus,
-  'star-plus': styles.starPlus,
-  crunchyroll: styles.crunchyroll,
-  'pluto-tv': styles.plutoTv,
-  mubi: styles.mubi,
-  clarovideo: styles.clarovideo,
-};
 
 const trendLabels = {
   up: 'Tendencia positiva',
@@ -24,21 +10,15 @@ const trendLabels = {
 };
 
 export function MovieCard({ movie }) {
-  const platform = platformMeta[movie.platform];
   const trend = movie.popularityTrend;
 
   return (
     <Link to={`/titulo/${movie.id}`} className={styles.card}>
       <div className={styles.posterWrap}>
         <img src={movie.poster} alt={movie.title} className={styles.poster} loading="lazy" />
-        {platform && (
+        {movie.platform && (
           <div className={styles.platformRow}>
-            <span
-              className={`${styles.platformBadge} ${platformClass[movie.platform] ?? ''}`}
-              aria-label={platform.label}
-            >
-              {platform.short}
-            </span>
+            <PlatformBadge platformId={movie.platform} logoUrl={movie.platformLogo} size="md" />
             {trend && (
               <span
                 className={styles.trendBadge}
