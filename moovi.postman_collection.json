@@ -1,0 +1,290 @@
+{
+  "info": {
+    "name": "Moovi API",
+    "description": "Colección de endpoints de la API de Moovi (NestJS).\n\nConfiguración:\n1. En las variables de la colección, poné `baseUrl` con la URL de tu backend + /api (ej: https://moovi-api.onrender.com/api o http://localhost:3001/api).\n2. Ejecutá 'Auth > Register' o 'Auth > Login': el token se guarda solo en la variable `token` y se usa automáticamente en los endpoints protegidos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://YOUR-BACKEND.onrender.com/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Hello (raíz /api)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}", "host": ["{{baseUrl}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.access_token) {",
+                  "  pm.collectionVariables.set('token', j.access_token);",
+                  "  console.log('Token guardado.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@moovi.com\",\n  \"password\": \"admin123\",\n  \"name\": \"Admin\",\n  \"country\": \"AR\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.access_token) {",
+                  "  pm.collectionVariables.set('token', j.access_token);",
+                  "  console.log('Token guardado.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@moovi.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Me (perfil del token)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "List (con filtros)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movies?page=1&limit=10&tab=novedades&media_type=movie&genre=Drama&lang=es",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "tab", "value": "novedades", "description": "novedades | recientes | populares" },
+                { "key": "media_type", "value": "movie", "description": "movie | tv", "disabled": true },
+                { "key": "genre", "value": "Drama", "disabled": true },
+                { "key": "lang", "value": "es", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Trending",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movies/trending?lang=es",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", "trending"],
+              "query": [{ "key": "lang", "value": "es", "disabled": true }]
+            }
+          }
+        },
+        {
+          "name": "Search",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movies/search?q=batman&lang=es",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", "search"],
+              "query": [
+                { "key": "q", "value": "batman" },
+                { "key": "lang", "value": "es", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Genres",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/movies/genres", "host": ["{{baseUrl}}"], "path": ["movies", "genres"] }
+          }
+        },
+        {
+          "name": "By Platform",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movies/platform/netflix?lang=es",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", "platform", ":slug"],
+              "query": [{ "key": "lang", "value": "es", "disabled": true }],
+              "variable": [{ "key": "slug", "value": "netflix", "description": "netflix, hbo, disney-plus, etc." }]
+            }
+          }
+        },
+        {
+          "name": "By Id",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/movies/1?lang=es",
+              "host": ["{{baseUrl}}"],
+              "path": ["movies", ":id"],
+              "query": [{ "key": "lang", "value": "es", "disabled": true }],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Platforms",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/platforms", "host": ["{{baseUrl}}"], "path": ["platforms"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (requieren token)",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Nombre\",\n  \"country\": \"AR\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+          }
+        },
+        {
+          "name": "Get My List",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/me/list?lang=es",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "list"],
+              "query": [{ "key": "lang", "value": "es", "disabled": true }]
+            }
+          }
+        },
+        {
+          "name": "Add To List",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/users/me/list/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "list", ":movieId"],
+              "variable": [{ "key": "movieId", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Remove From List",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/users/me/list/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "list", ":movieId"],
+              "variable": [{ "key": "movieId", "value": "1" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chatbot (requiere token)",
+      "item": [
+        {
+          "name": "Chat",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Quiero algo de terror para esta noche\",\n  \"lang\": \"es\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/chatbot", "host": ["{{baseUrl}}"], "path": ["chatbot"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sync (requiere token)",
+      "item": [
+        {
+          "name": "Run Sync (poblar catálogo desde TMDB)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/sync/run", "host": ["{{baseUrl}}"], "path": ["sync", "run"] }
+          }
+        }
+      ]
+    }
+  ]
+}
