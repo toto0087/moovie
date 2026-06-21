@@ -44,4 +44,6 @@ export default {
     response: '首推《怪奇物语》：神秘、怀旧又充满悬疑。',
   },
   fallbackResponse: '明白了。以下是为「{{query}}」找到的内容。',
+  errorResponse: '哎呀，无法连接到助手。请稍后再试。',
+  voiceUnsupported: '你的浏览器不支持语音输入，请输入文字消息，我照样帮你找。',
 };

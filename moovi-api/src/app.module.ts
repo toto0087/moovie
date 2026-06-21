@@ -6,6 +6,7 @@ import { MoviesModule } from './movies/movies.module';
 import { UsersModule } from './users/users.module';
 import { PlatformsModule } from './platforms/platforms.module';
 import { SyncModule } from './sync/sync.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SyncModule } from './sync/sync.module';
     UsersModule,
     PlatformsModule,
     SyncModule,
+    ChatbotModule,
   ],
 })
 export class AppModule {}

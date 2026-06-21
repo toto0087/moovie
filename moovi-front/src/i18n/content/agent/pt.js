@@ -44,4 +44,6 @@ export default {
     response: 'Stranger Things é minha primeira recomendação: mistério, nostalgia e suspense.',
   },
   fallbackResponse: 'Entendido. Mostro o que encontrei para "{{query}}".',
+  errorResponse: 'Ops, não consegui conectar com o assistente. Tente de novo em um instante.',
+  voiceUnsupported: 'Seu navegador não suporta entrada de voz. Escreva sua mensagem que eu busco.',
 };

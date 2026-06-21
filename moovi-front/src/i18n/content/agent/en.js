@@ -45,4 +45,6 @@ export default {
       'Stranger Things is my top pick: mystery, nostalgia and plenty of suspense.',
   },
   fallbackResponse: 'Got it. Here\'s what I found for "{{query}}".',
+  errorResponse: 'Oops, I couldn\'t reach the assistant. Please try again in a moment.',
+  voiceUnsupported: 'Your browser doesn\'t support voice input. Type your message and I\'ll search anyway.',
 };
