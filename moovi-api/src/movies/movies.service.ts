@@ -96,7 +96,8 @@ export class MoviesService {
       qb.andWhere('m.media_type = :media_type', { media_type: filters.media_type });
     }
     if (filters.genre) {
-      qb.andWhere('JSON_CONTAINS(m.genres, :genre)', { genre: JSON.stringify(filters.genre) });
+      // genres es un JSON array guardado como texto; @> chequea pertenencia en Postgres.
+      qb.andWhere('m.genres::jsonb @> :genre::jsonb', { genre: JSON.stringify([filters.genre]) });
     }
     if (filters.trendingOnly) {
       qb.andWhere('m.trending = :trending', { trending: true });
@@ -183,15 +184,15 @@ export class MoviesService {
     if (!q || q.trim().length < 2) return this.findTrending(lang);
 
     const term = q.trim();
+    const like = `%${term}%`;
+    // Postgres no tiene MATCH/AGAINST; usamos ILIKE (case-insensitive) sobre
+    // título, sinopsis y géneros.
     const items = await this.repo
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.platform', 'platform')
-      .where(
-        `MATCH(m.title, m.overview) AGAINST (:term IN BOOLEAN MODE)`,
-        { term: `${term}*` },
-      )
-      .orWhere('m.title LIKE :like', { like: `%${term}%` })
-      .orWhere('m.genres LIKE :like', { like: `%${term}%` })
+      .where('m.title ILIKE :like', { like })
+      .orWhere('m.overview ILIKE :like', { like })
+      .orWhere('m.genres ILIKE :like', { like })
       .orderBy('m.popularity_rank', 'ASC')
       .limit(50)
       .getMany();

@@ -83,7 +83,7 @@ export class UsersService {
     if (!movie) throw new NotFoundException('Título no encontrado');
 
     await this.users.manager.query(
-      'INSERT IGNORE INTO user_lists (user_id, movie_id) VALUES (?, ?)',
+      'INSERT INTO user_lists (user_id, movie_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
       [userId, movieId],
     );
     return { added: true };
@@ -91,7 +91,7 @@ export class UsersService {
 
   async removeFromList(userId: number, movieId: number) {
     await this.users.manager.query(
-      'DELETE FROM user_lists WHERE user_id = ? AND movie_id = ?',
+      'DELETE FROM user_lists WHERE user_id = $1 AND movie_id = $2',
       [userId, movieId],
     );
     return { removed: true };

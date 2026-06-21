@@ -13,16 +13,30 @@ import { ChatbotModule } from './chatbot/chatbot.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (cfg: ConfigService) => ({
-        type: 'mysql',
-        host: cfg.get('DB_HOST', 'localhost'),
-        port: cfg.get<number>('DB_PORT', 3306),
-        username: cfg.get('DB_USER', 'root'),
-        password: cfg.get('DB_PASSWORD', 'root'),
-        database: cfg.get('DB_NAME', 'moovi_db'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-      }),
+      useFactory: (cfg: ConfigService) => {
+        // En Render alcanza con pegar la connection string (DATABASE_URL).
+        // En local podés usar las variables sueltas DB_HOST/DB_PORT/...
+        const url = cfg.get<string>('DATABASE_URL');
+        const ssl =
+          cfg.get('DB_SSL') === 'true'
+            ? { ssl: { rejectUnauthorized: false } }
+            : {};
+        return {
+          type: 'postgres' as const,
+          ...(url
+            ? { url }
+            : {
+                host: cfg.get<string>('DB_HOST', 'localhost'),
+                port: cfg.get<number>('DB_PORT', 5432),
+                username: cfg.get<string>('DB_USER', 'postgres'),
+                password: cfg.get<string>('DB_PASSWORD', 'postgres'),
+                database: cfg.get<string>('DB_NAME', 'moovi_db'),
+              }),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: false,
+          ...ssl,
+        };
+      },
     }),
     AuthModule,
     MoviesModule,
