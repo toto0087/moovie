@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { SearchBar } from '../../components/SearchBar/SearchBar';
 import { VoiceSearchAgent } from '../../components/VoiceSearchAgent/VoiceSearchAgent';
@@ -7,14 +7,13 @@ import { useAppSettings } from '../../context/AppSettingsContext';
 import { useI18n } from '../../context/I18nContext';
 import { useMovieSearch } from '../../hooks/useMovieSearch';
 import { useGenres } from '../../hooks/useGenres';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { GenreFilter } from '../../components/GenreFilter/GenreFilter';
 import { addSearchQuery, readSearchHistory } from '../../utils/searchHistory';
-import {
-  getAgentGreeting,
-  getAgentResponse,
-  getVoiceDemoPrompt,
-  getVoiceSuggestions,
-} from './searchAgent';
+import { mapMovies } from '../../utils/mapMovie';
+import { sendChatMessage } from '../../services/chatbot';
+import { getAgentBundle } from '../../i18n/content/agent/index.js';
+import { getAgentGreeting, getVoiceSuggestions } from './searchAgent';
 import styles from './SearchPage.module.css';
 
 export function SearchPage() {
@@ -26,13 +25,13 @@ export function SearchPage() {
   const { movies: filtered, loading } = useMovieSearch(search, activeGenre);
   const [recentSearches, setRecentSearches] = useState(readSearchHistory);
   const [agentOpen, setAgentOpen] = useState(false);
-  const [agentStatus, setAgentStatus] = useState('idle');
+  const [agentStatus, setAgentStatus] = useState('idle'); // 'idle' | 'thinking'
   const [messages, setMessages] = useState(() => [getAgentGreeting(language)]);
   const [transcript, setTranscript] = useState('');
-  const timersRef = useRef([]);
+  // Películas recomendadas por el agente (Gemini). null = el agente todavía no respondió.
+  const [agentResults, setAgentResults] = useState(null);
 
   const voiceSuggestions = useMemo(() => getVoiceSuggestions(language), [language]);
-  const voiceDemoPrompt = useMemo(() => getVoiceDemoPrompt(language), [language]);
 
   useEffect(() => {
     setMessages([getAgentGreeting(language)]);
@@ -48,112 +47,92 @@ export function SearchPage() {
     return () => clearTimeout(timer);
   }, [search, settings.saveSearchHistory]);
 
-  const clearTimers = useCallback(() => {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-  }, []);
+  // Núcleo del chatbot: manda el mensaje al backend (que llama a Gemini) y
+  // muestra la respuesta + las películas recomendadas del catálogo.
+  const askAgent = useCallback(
+    async (userText) => {
+      const text = (userText ?? '').trim();
+      if (!text) return;
 
-  useEffect(() => () => clearTimers(), [clearTimers]);
+      setMessages((prev) => [...prev, { role: 'user', text }]);
+      setAgentStatus('thinking');
+      setTranscript('');
 
-  const resolveAgentReply = useCallback(
-    (prompt) => {
-      const label = prompt.label ?? prompt;
-      const response =
-        prompt.response ??
-        getAgentResponse(typeof prompt === 'string' ? prompt : label, language)?.response;
-      const query =
-        prompt.query ??
-        getAgentResponse(typeof prompt === 'string' ? prompt : label, language)?.query ??
-        label;
-
-      return { label, response, query };
+      try {
+        const { reply, movies } = await sendChatMessage(text, language);
+        setMessages((prev) => [...prev, { role: 'agent', text: reply }]);
+        setAgentResults(mapMovies(movies));
+      } catch {
+        const bundle = getAgentBundle(language);
+        const errorText =
+          bundle.errorResponse ??
+          'No pude conectarme con el asistente. Probá de nuevo.';
+        setMessages((prev) => [...prev, { role: 'agent', text: errorText }]);
+      } finally {
+        setAgentStatus('idle');
+      }
     },
     [language]
   );
 
-  const finishAgentTurn = useCallback(
-    (prompt) => {
-      const { label, response, query } = resolveAgentReply(prompt);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'user', text: label },
-        { role: 'agent', text: response },
-      ]);
-      setSearch(query);
-      setTranscript('');
-      setAgentStatus('idle');
+  // Dictado por voz real (Web Speech API del navegador).
+  const {
+    supported: voiceSupported,
+    listening,
+    start: startListening,
+    stop: stopListening,
+  } = useSpeechRecognition({
+    lang: language,
+    onInterim: (text) => setTranscript(text),
+    onResult: (text) => {
+      setTranscript(text);
+      askAgent(text);
     },
-    [resolveAgentReply]
-  );
-
-  const runVoiceFlow = useCallback(
-    (prompt) => {
-      clearTimers();
-      if (!agentOpen) setAgentOpen(true);
-      setAgentStatus('listening');
-      setTranscript('');
-
-      const label = prompt.label ?? prompt;
-
-      timersRef.current.push(
-        setTimeout(() => setTranscript(label), 700),
-        setTimeout(() => setAgentStatus('thinking'), 1600),
-        setTimeout(() => finishAgentTurn(prompt), 2800)
-      );
-    },
-    [agentOpen, clearTimers, finishAgentTurn]
-  );
+  });
 
   const handleListen = useCallback(() => {
-    if (agentStatus === 'listening') {
-      clearTimers();
-      setAgentStatus('idle');
-      setTranscript('');
+    if (listening) {
+      stopListening();
       return;
     }
-    if (agentStatus !== 'idle') return;
-    runVoiceFlow(voiceDemoPrompt);
-  }, [agentStatus, clearTimers, runVoiceFlow, voiceDemoPrompt]);
+    if (agentStatus === 'thinking') return;
 
-  const handleSendMessage = useCallback(
-    (text) => {
-      const reply = getAgentResponse(text, language);
-      if (!reply) return;
+    if (!voiceSupported) {
+      const bundle = getAgentBundle(language);
+      const msg =
+        bundle.voiceUnsupported ??
+        'Tu navegador no soporta dictado por voz. Escribime el mensaje.';
+      if (!agentOpen) setAgentOpen(true);
+      setMessages((prev) => [...prev, { role: 'agent', text: msg }]);
+      return;
+    }
 
-      clearTimers();
-      setAgentStatus('thinking');
+    if (!agentOpen) setAgentOpen(true);
+    setTranscript('');
+    startListening();
+  }, [listening, agentStatus, voiceSupported, agentOpen, language, startListening, stopListening]);
 
-      timersRef.current.push(
-        setTimeout(
-          () => finishAgentTurn({ label: reply.label, response: reply.response, query: reply.query }),
-          900
-        )
-      );
-    },
-    [clearTimers, finishAgentTurn, language]
-  );
+  const handleSendMessage = useCallback((text) => askAgent(text), [askAgent]);
 
-  const handleSuggestion = useCallback(
-    (item) => {
-      clearTimers();
-      setAgentStatus('thinking');
-      timersRef.current.push(setTimeout(() => finishAgentTurn(item), 700));
-    },
-    [clearTimers, finishAgentTurn]
-  );
+  const handleSuggestion = useCallback((item) => askAgent(item.label), [askAgent]);
 
   const toggleAgent = useCallback(() => {
     setAgentOpen((open) => !open);
-    if (agentStatus === 'listening') {
-      clearTimers();
-      setAgentStatus('idle');
-      setTranscript('');
-    }
-  }, [agentStatus, clearTimers]);
+    if (listening) stopListening();
+  }, [listening, stopListening]);
+
+  // Mientras escucha, mostramos 'listening'; si no, el estado del chat ('idle'/'thinking').
+  const voiceStatus = listening ? 'listening' : agentStatus;
+
+  // Si el usuario busca por texto o género, manda la búsqueda normal;
+  // si no, y el agente ya recomendó algo, mostramos sus picks.
+  const usingAgentResults = !search.trim() && !activeGenre && agentResults !== null;
+  const gridMovies = usingAgentResults ? agentResults : filtered;
+  const gridLoading = usingAgentResults ? false : loading;
 
   const resultsTitle = search.trim()
     ? t('search.results')
-    : agentOpen && messages.length > 1
+    : usingAgentResults || (agentOpen && messages.length > 1)
       ? t('search.forYou')
       : t('search.explore');
 
@@ -171,12 +150,14 @@ export function SearchPage() {
         />
 
         {genres.length > 0 && (
-          <GenreFilter
-            genres={genres}
-            activeGenre={activeGenre}
-            onSelect={setActiveGenre}
-            allLabel="Todo"
-          />
+          <div className={styles.genreFilter}>
+            <GenreFilter
+              genres={genres}
+              activeGenre={activeGenre}
+              onSelect={setActiveGenre}
+              allLabel="Todo"
+            />
+          </div>
         )}
 
         {!search.trim() && !activeGenre && settings.saveSearchHistory && recentSearches.length > 0 && (
@@ -200,7 +181,7 @@ export function SearchPage() {
 
       {agentOpen && (
         <VoiceSearchAgent
-          status={agentStatus}
+          status={voiceStatus}
           messages={messages}
           transcript={transcript}
           suggestions={voiceSuggestions}
@@ -215,12 +196,12 @@ export function SearchPage() {
         <h2 id="search-results-heading" className={styles.resultsTitle}>
           {resultsTitle}
         </h2>
-        {loading ? (
+        {gridLoading ? (
           <p className={styles.empty}>{t('common.loading')}</p>
-        ) : filtered.length === 0 ? (
+        ) : gridMovies.length === 0 ? (
           <p className={styles.empty}>{t('search.empty')}</p>
         ) : (
-          <MovieGrid movies={filtered} />
+          <MovieGrid movies={gridMovies} />
         )}
       </section>
     </div>

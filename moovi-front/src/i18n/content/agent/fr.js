@@ -44,4 +44,6 @@ export default {
     response: 'Stranger Things est mon premier choix : mystère, nostalgie et suspense.',
   },
   fallbackResponse: 'Compris. Voici ce que j\'ai trouvé pour « {{query}} ».',
+  errorResponse: 'Oups, je n\'ai pas pu joindre l\'assistant. Réessayez dans un instant.',
+  voiceUnsupported: 'Votre navigateur ne prend pas en charge la saisie vocale. Écrivez votre message.',
 };

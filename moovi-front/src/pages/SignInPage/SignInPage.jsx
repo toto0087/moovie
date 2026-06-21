@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
 import { FaApple, FaFacebook, FaGoogle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useI18n } from '../../context/I18nContext';
 import { Logo } from '../../components/Logo/Logo';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -10,6 +11,7 @@ import styles from './SignInPage.module.css';
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { isAuthenticated, login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +30,7 @@ export function SignInPage() {
       await login(email.trim(), password);
       navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.message ?? 'Credenciales inválidas');
+      setError(err.response?.data?.message ?? t('auth.signIn.invalidCredentials'));
     } finally {
       setSubmitting(false);
     }
@@ -36,58 +38,66 @@ export function SignInPage() {
 
   return (
     <div className={styles.page}>
-      <button type="button" className={styles.close} onClick={() => navigate('/')} aria-label="Cerrar">
+      <button
+        type="button"
+        className={styles.close}
+        onClick={() => navigate('/')}
+        aria-label={t('auth.close')}
+      >
         <FiX />
       </button>
 
       <Logo size="lg" className={styles.logo} />
 
       <h1 className={styles.title}>
-        YOUR ACCOUNT FOR
+        {t('auth.signIn.titleLine1')}
         <br />
-        EVERYTHING MOOVI
+        {t('auth.signIn.titleLine2')}
       </h1>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <Input
           type="email"
-          placeholder="Email"
+          placeholder={t('common.email')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
         <Input
           type="password"
-          placeholder="Password"
+          placeholder={t('auth.signIn.password')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
         {error && <p className={styles.error}>{error}</p>}
-        <a href="#" className={styles.forgot}>Forgot Your Password?</a>
+        <a href="#" className={styles.forgot}>
+          {t('auth.signIn.forgotPassword')}
+        </a>
         <p className={styles.legal}>
-          By loggin in, you agree to Moovi´s{' '}
-          <a href="#">Privacy Policy</a> and <a href="#">Term of Use</a>
+          {t('auth.signIn.legalPrefix')}{' '}
+          <a href="#">{t('auth.signIn.privacyPolicy')}</a> {t('common.and')}{' '}
+          <a href="#">{t('auth.signIn.termsOfUse')}</a>
         </p>
         <Button variant="primary" type="submit" disabled={submitting}>
-          {submitting ? 'Signing in…' : 'Sign In'}
+          {submitting ? t('auth.signIn.signingIn') : t('auth.signIn.submit')}
         </Button>
       </form>
 
       <div className={styles.social}>
         <Button variant="social" className={styles.socialApple}>
-          <FaApple /> Continue with Apple
+          <FaApple /> {t('auth.signIn.continueApple')}
         </Button>
         <Button variant="social">
-          <FaFacebook className={styles.fbIcon} /> Continue with Facebook
+          <FaFacebook className={styles.fbIcon} /> {t('auth.signIn.continueFacebook')}
         </Button>
         <Button variant="social">
-          <FaGoogle className={styles.googleIcon} /> Continue with Google
+          <FaGoogle className={styles.googleIcon} /> {t('auth.signIn.continueGoogle')}
         </Button>
       </div>
 
       <p className={styles.footer}>
-        Not a member? <Link to="/join-us">Join Us.</Link>
+        {t('auth.signIn.notMember')} <Link to="/join-us">{t('auth.signIn.joinUsLink')}</Link>
       </p>
     </div>
   );

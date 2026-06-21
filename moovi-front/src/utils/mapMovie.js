@@ -2,6 +2,7 @@ export function mapMovie(apiMovie) {
   if (!apiMovie) return null;
 
   const platformSlug = apiMovie.platform?.slug ?? null;
+  const platformLogo = apiMovie.platform?.logo_url ?? null;
 
   return {
     id: apiMovie.id,
@@ -12,6 +13,7 @@ export function mapMovie(apiMovie) {
     synopsis: apiMovie.overview ?? '',
     ageRating: apiMovie.age_rating ?? null,
     platform: platformSlug,
+    platformLogo,
     platforms: platformSlug ? [platformSlug] : [],
     badge: apiMovie.badge,
     popularityTrend: apiMovie.popularity_trend,

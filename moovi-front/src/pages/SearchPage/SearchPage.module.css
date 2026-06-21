@@ -9,6 +9,10 @@
   padding: var(--space-sm) 0 var(--space-md);
 }
 
+.genreFilter {
+  margin-top: var(--space-md);
+}
+
 .genreFilters {
   display: flex;
   gap: 8px;

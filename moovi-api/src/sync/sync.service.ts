@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MovieEntity } from '../movies/movie.entity';
 import { PlatformEntity } from '../platforms/platform.entity';
-import { TmdbClient, certToAgeRating, toSlug } from './tmdb.client';
+import { DISCOVER_PROVIDERS } from '../platforms/platform-seeds';
+import { TmdbClient, resolveAgeRating, toSlug } from './tmdb.client';
 
 @Injectable()
 export class SyncService {
@@ -21,7 +22,7 @@ export class SyncService {
     this.logger.log('Starting TMDB sync...');
 
     const platformMap = await this.buildPlatformMap();
-    const rawItems = await this.fetchAllItems();
+    const rawItems = await this.fetchAllItems(country);
     this.logger.log(`Fetched ${rawItems.length} unique items from TMDB`);
 
     // Build trending set with rank
@@ -52,9 +53,12 @@ export class SyncService {
   ) {
     const mediaType: 'tv' | 'movie' = item.media_type === 'movie' ? 'movie' : 'tv';
     const tmdbId: number = item.id;
+    const forcedSlug: string | undefined = item._platformSlug;
 
     try {
-      const provider = await this.tmdb.getWatchProviders(tmdbId, mediaType, country);
+      const provider = forcedSlug
+        ? { slug: forcedSlug, providerId: 0 }
+        : await this.tmdb.getWatchProviders(tmdbId, mediaType, country);
       if (!provider) {
         stats.skipped++;
         return;
@@ -68,9 +72,7 @@ export class SyncService {
 
       const [details, certRaw] = await Promise.all([
         mediaType === 'tv' ? this.tmdb.getTVDetails(tmdbId) : this.tmdb.getMovieDetails(tmdbId),
-        mediaType === 'tv'
-          ? this.tmdb.getTVContentRating(tmdbId, country)
-          : this.tmdb.getMovieContentRating(tmdbId, country),
+        this.tmdb.getContentRating(tmdbId, mediaType, country),
       ]);
 
       const title: string = details.name ?? details.title ?? 'Sin título';
@@ -83,7 +85,7 @@ export class SyncService {
           ? details.runtime ?? null
           : details.episode_run_time?.[0] ?? null;
       const releaseYear: number | null = parseYear(details.first_air_date ?? details.release_date);
-      const ageRating = certToAgeRating(certRaw);
+      const ageRating = resolveAgeRating(certRaw, mediaType, details);
 
       const rankInTrending = trendingIds.get(tmdbId);
       const trending = !!rankInTrending;
@@ -139,7 +141,7 @@ export class SyncService {
     return dedup(pages.flat());
   }
 
-  private async fetchAllItems(): Promise<any[]> {
+  private async fetchAllItems(country = 'AR'): Promise<any[]> {
     const [t1, t2, t3] = await Promise.all([
       this.tmdb.getTrending(1),
       this.tmdb.getTrending(2),
@@ -148,10 +150,33 @@ export class SyncService {
     const tvPages = await Promise.all([1, 2, 3, 4, 5].map((p) => this.tmdb.getPopularTV(p)));
     const moviePages = await Promise.all([1, 2, 3].map((p) => this.tmdb.getPopularMovies(p)));
 
+    const tag = (items: any[], mediaType: 'tv' | 'movie', platformSlug: string) =>
+      items.map((i) => ({ ...i, media_type: mediaType, _platformSlug: platformSlug }));
+
+    const discoverBatches = await Promise.all(
+      DISCOVER_PROVIDERS.map(async ({ slug, providerId, tvPages, moviePages }) => {
+        const tv = await Promise.all(
+          Array.from({ length: tvPages }, (_, i) =>
+            this.tmdb.discoverByProvider(providerId, 'tv', i + 1, country),
+          ),
+        );
+        const movies = await Promise.all(
+          Array.from({ length: moviePages }, (_, i) =>
+            this.tmdb.discoverByProvider(providerId, 'movie', i + 1, country),
+          ),
+        );
+        return [
+          ...tag(tv.flat(), 'tv', slug),
+          ...tag(movies.flat(), 'movie', slug),
+        ];
+      }),
+    );
+
     const all = [
       ...[...t1, ...t2, ...t3].map((i) => ({ ...i, media_type: i.media_type ?? 'tv' })),
       ...tvPages.flat().map((i) => ({ ...i, media_type: 'tv' })),
       ...moviePages.flat().map((i) => ({ ...i, media_type: 'movie' })),
+      ...discoverBatches.flat(),
     ];
     return dedup(all);
   }

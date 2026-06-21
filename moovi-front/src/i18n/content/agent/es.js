@@ -45,4 +45,6 @@ export default {
       'Stranger Things es mi primera recomendación: mezcla misterio, nostalgia y mucho suspenso.',
   },
   fallbackResponse: 'Entendido. Te muestro lo que encontré para "{{query}}".',
+  errorResponse: 'Uy, no pude conectarme con el asistente. Probá de nuevo en un momento.',
+  voiceUnsupported: 'Tu navegador no soporta dictado por voz. Escribime el mensaje y lo busco igual.',
 };

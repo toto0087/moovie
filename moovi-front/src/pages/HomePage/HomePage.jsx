@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { PageHeader } from '../../components/PageHeader/PageHeader';
 import { MovieCarousel } from '../../components/MovieCarousel/MovieCarousel';
 import { ContentTabs } from '../../components/ContentTabs/ContentTabs';
@@ -17,6 +18,11 @@ export function HomePage({ variant = 'home' }) {
   const genres = useGenres();
   const { movies: trending, loading: trendingLoading } = useTrending();
   const { movies: tabbed, loading: tabLoading, loadingMore, hasMore, loadMore } = useMoviesTab(activeTab, null, activeGenre);
+  const scrollSentinelRef = useInfiniteScroll({
+    hasMore,
+    loading: tabLoading || loadingMore,
+    onLoadMore: loadMore,
+  });
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -43,20 +49,13 @@ export function HomePage({ variant = 'home' }) {
         ) : tabbed.length === 0 ? (
           <p className={styles.empty}>{t('home.empty')}</p>
         ) : (
-          <MovieGrid movies={tabbed} />
-        )}
-
-        {!tabLoading && hasMore && (
-          <div className={styles.loadMoreFloat}>
-            <button
-              type="button"
-              className={styles.loadMoreBtn}
-              onClick={loadMore}
-              disabled={loadingMore}
-            >
-              {loadingMore ? t('common.loading') : t('home.loadMore')}
-            </button>
-          </div>
+          <>
+            <MovieGrid movies={tabbed} />
+            <div ref={scrollSentinelRef} className={styles.scrollSentinel} aria-hidden />
+            {loadingMore && (
+              <p className={styles.loadingMore}>{t('common.loading')}</p>
+            )}
+          </>
         )}
       </div>
     );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FiX, FiChevronDown } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import { useI18n } from '../../context/I18nContext';
 import { Logo } from '../../components/Logo/Logo';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -9,6 +10,7 @@ import styles from './JoinUsPage.module.css';
 
 export function JoinUsPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { isAuthenticated, register, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +34,7 @@ export function JoinUsPage() {
       navigate('/home');
     } catch (err) {
       const msg = err.response?.data?.message;
-      setError(Array.isArray(msg) ? msg.join(', ') : msg ?? 'No se pudo crear la cuenta');
+      setError(Array.isArray(msg) ? msg.join(', ') : msg ?? t('auth.joinUs.registerError'));
     } finally {
       setSubmitting(false);
     }
@@ -40,28 +42,31 @@ export function JoinUsPage() {
 
   return (
     <div className={styles.page}>
-      <button type="button" className={styles.close} onClick={() => navigate('/')} aria-label="Cerrar">
+      <button
+        type="button"
+        className={styles.close}
+        onClick={() => navigate('/')}
+        aria-label={t('auth.close')}
+      >
         <FiX />
       </button>
 
       <Logo size="lg" className={styles.logo} />
 
-      <h1 className={styles.title}>BECOME A MOOVI MEMBER</h1>
-      <p className={styles.subtitle}>
-        Create your Moovi Member profile and get first access to all catalog.
-      </p>
+      <h1 className={styles.title}>{t('auth.joinUs.title')}</h1>
+      <p className={styles.subtitle}>{t('auth.joinUs.subtitle')}</p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <Input
           type="email"
-          placeholder="name@email.com"
+          placeholder={t('auth.joinUs.emailPlaceholder')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
         <Input
           type="password"
-          placeholder="Password"
+          placeholder={t('auth.joinUs.password')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -69,25 +74,25 @@ export function JoinUsPage() {
         />
         <Input
           type="text"
-          placeholder="First Name"
+          placeholder={t('auth.joinUs.firstName')}
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           required
         />
         <Input
           type="text"
-          placeholder="Last Name"
+          placeholder={t('auth.joinUs.lastName')}
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           required
         />
-        <Input type="text" placeholder="Date of Birth" />
+        <Input type="text" placeholder={t('auth.joinUs.dateOfBirth')} />
         <div className={styles.selectWrap}>
           <select
             className={styles.select}
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            aria-label="País"
+            aria-label={t('auth.joinUs.country')}
           >
             <option>Argentina</option>
             <option>Chile</option>
@@ -100,25 +105,24 @@ export function JoinUsPage() {
 
         <label className={styles.checkbox}>
           <input type="checkbox" />
-          <span>
-            Sign up for emails to get updates from Moovi on news, and you Member benefits
-          </span>
+          <span>{t('auth.joinUs.newsletter')}</span>
         </label>
 
         {error && <p className={styles.error}>{error}</p>}
 
         <p className={styles.legal}>
-          By creating an account, you agree to Moovi&apos;s{' '}
-          <a href="#">Privacy Policy</a> and <a href="#">Terms of Use</a>.
+          {t('auth.joinUs.legalPrefix')}{' '}
+          <a href="#">{t('auth.joinUs.privacyPolicy')}</a> {t('common.and')}{' '}
+          <a href="#">{t('auth.joinUs.termsOfUse')}</a>.
         </p>
 
         <Button variant="primary" type="submit" disabled={submitting}>
-          {submitting ? 'Creating account…' : 'Join Us'}
+          {submitting ? t('auth.joinUs.creating') : t('auth.joinUs.submit')}
         </Button>
       </form>
 
       <p className={styles.footer}>
-        Already a Member? <Link to="/sign-in">Sign In.</Link>
+        {t('auth.joinUs.alreadyMember')} <Link to="/sign-in">{t('auth.joinUs.signInLink')}</Link>
       </p>
     </div>
   );

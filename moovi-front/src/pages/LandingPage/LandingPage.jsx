@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Logo } from '../../components/Logo/Logo';
+import { useI18n } from '../../context/I18nContext';
 import { useTrending } from '../../hooks/useTrending';
 import styles from './LandingPage.module.css';
 
 export function LandingPage() {
+  const { t } = useI18n();
   const { movies } = useTrending();
   const posters = movies.map((m) => m.poster).filter(Boolean);
   const posterTiles = posters.length > 0
@@ -46,16 +48,16 @@ export function LandingPage() {
             <span className={styles.prefix}>te dice</span>
             <span className={styles.emphasis}>dónde verlo</span>
             <span className={styles.connector}>en</span>
-            <span className={styles.strongWord}>segundos</span>.
+            <span className={styles.strongWord}>segundos.</span>
           </span>
         </h1>
 
         <div className={`${styles.actions} ${styles.reveal}`} style={{ animationDelay: '0.55s' }}>
           <Link to="/join-us" className={styles.joinBtn}>
-            Join Us
+            {t('auth.joinUs.submit')}
           </Link>
           <Link to="/sign-in" className={styles.signInBtn}>
-            Sign In
+            {t('auth.signIn.submit')}
           </Link>
         </div>
         </div>
