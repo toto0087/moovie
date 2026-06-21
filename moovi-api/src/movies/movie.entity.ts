@@ -32,7 +32,7 @@ export class MovieEntity {
   @Column({ nullable: true })
   backdrop_url: string;
 
-  @Column({ type: 'tinyint', unsigned: true, nullable: true })
+  @Column({ type: 'smallint', nullable: true })
   age_rating: number;
 
   @ManyToOne(() => PlatformEntity, { nullable: true, eager: true })
@@ -45,22 +45,22 @@ export class MovieEntity {
   @Column({ nullable: true })
   badge: string;
 
-  @Column({ type: 'smallint', unsigned: true, nullable: true })
+  @Column({ type: 'int', nullable: true })
   popularity_rank: number;
 
-  @Column({ type: 'enum', enum: ['up', 'down'], nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   popularity_trend: string;
 
   @Column({ nullable: true, length: 500 })
   genres: string;
 
-  @Column({ type: 'enum', enum: ['movie', 'tv'], default: 'tv' })
+  @Column({ type: 'varchar', default: 'tv' })
   media_type: string;
 
-  @Column({ type: 'smallint', unsigned: true, nullable: true })
+  @Column({ type: 'int', nullable: true })
   runtime: number;
 
-  @Column({ type: 'smallint', unsigned: true, nullable: true })
+  @Column({ type: 'int', nullable: true })
   release_year: number;
 
   @CreateDateColumn()

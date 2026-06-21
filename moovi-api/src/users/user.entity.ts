@@ -17,7 +17,7 @@ export class UserEntity {
   @Column({ nullable: true })
   country: string;
 
-  @Column({ type: 'enum', enum: ['free', 'premium'], default: 'free' })
+  @Column({ type: 'varchar', default: 'free' })
   plan: string;
 
   @Column({ nullable: true })
